@@ -114,47 +114,56 @@ using OrderHandler = std::function<void(sys::error_code ec, int id, Hamburger* h
 class Restaurant : public std::enable_shared_from_this<Restaurant> {
 public:
     explicit Restaurant(net::io_context& io)
-        : io_(io), strand_(net::make_strand(io.get_executor())) {
+        : io_(io), strand_(net::make_strand(io)) {
     }
 
     int MakeHamburger(bool with_onion, OrderHandler handler) {
         const int order_id = ++next_order_id_;
         auto hamburger = std::make_shared<Hamburger>();
-        auto weak_self = weak_from_this();
-
 
         // Шаг 1: Обжарить котлету и (если нужно) добавить лук
-        net::post(strand_, [weak_self, hamburger, with_onion, order_id, handler]() {
-            auto self = weak_self.lock();
-            net::steady_timer timer(self->io_, 1s);
-            timer.async_wait(net::bind_executor(self->strand_, [self, hamburger, with_onion, order_id, handler](sys::error_code ec) {
-                if (ec) {
-                    handler(ec, order_id, nullptr);
-                    return;
-                }
-                hamburger->SetCutletRoasted();
-                if (with_onion) {
+        auto timer1 = std::make_shared<net::steady_timer>(io_, 1s);
+        timer1->async_wait(net::bind_executor(strand_, [this, hamburger, with_onion, order_id, handler, timer1](sys::error_code ec) {
+            if (ec) {
+                handler(ec, order_id, nullptr);
+                return;
+            }
+            hamburger->SetCutletRoasted();
+            if (with_onion) {
+                // Шаг 2: Добавить лук
+                auto timer2 = std::make_shared<net::steady_timer>(io_, 1s);
+                timer2->async_wait(net::bind_executor(strand_, [this, hamburger, order_id, handler, timer2](sys::error_code ec) {
+                    if (ec) {
+                        handler(ec, order_id, nullptr);
+                        return;
+                    }
                     hamburger->AddOnion();
-                }
-                // Шаг 2: Упаковать гамбургер
-                net::post(self->strand_, [self, hamburger, order_id, handler]() {
-                    net::steady_timer pack_timer(self->io_, 1s);
-                    pack_timer.async_wait(net::bind_executor(self->strand_, [self, hamburger, order_id, handler](sys::error_code ec) {
-                        if (ec) {
-                            handler(ec, order_id, nullptr);
-                            return;
-                        }
-                        hamburger->Pack();
-                        handler({}, order_id, hamburger.get());
-                        }));
-                    });
-                }));
-            });
+                    // Шаг 3: Упаковать гамбургер
+                    PackHamburger(hamburger, order_id, handler);
+                    }));
+            }
+            else {
+                // Шаг 3: Упаковать гамбургер
+                PackHamburger(hamburger, order_id, handler);
+            }
+            }));
 
         return order_id;
     }
 
 private:
+    void PackHamburger(std::shared_ptr<Hamburger> hamburger, int order_id, OrderHandler handler) {
+        auto timer = std::make_shared<net::steady_timer>(io_, 1s);
+        timer->async_wait(net::bind_executor(strand_, [hamburger, order_id, handler, timer](sys::error_code ec) {
+            if (ec) {
+                handler(ec, order_id, nullptr);
+                return;
+            }
+            hamburger->Pack();
+            handler({}, order_id, hamburger.get());
+            }));
+    }
+
     net::io_context& io_;
     net::strand<net::io_context::executor_type> strand_;
     int next_order_id_ = 0;
