@@ -24,3 +24,5 @@ add_executable(cafeteria
 	src/clock.h
 )
 target_link_libraries(cafeteria PRIVATE Threads::Threads)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")

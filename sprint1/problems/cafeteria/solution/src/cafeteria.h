@@ -6,6 +6,7 @@
 #include <boost/asio/io_context.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/asio/strand.hpp>
+#include <boost/asio.hpp>
 #include <memory>
 #include <map>
 
@@ -21,7 +22,7 @@ using HotDogHandler = std::function<void(Result<HotDog> hot_dog)>;
 class Cafeteria {
 public:
     explicit Cafeteria(net::io_context& io)
-        : io_{ io }, gas_cooker_{ std::make_shared<GasCooker>(io, 8) } { // 8 горелок
+        : io_{ io }, strand_{ net::make_strand(io) }, gas_cooker_{ std::make_shared<GasCooker>(io, 8) } { // 8 горелок
     }
 
     // Асинхронно готовит хот-дог и вызывает handler, как только хот-дог будет готов.
@@ -30,38 +31,46 @@ public:
         auto id = next_id_++;
         auto sausage = store_.GetSausage();
         auto bread = store_.GetBread();
-
         // Начало приготовления сосиски
         sausage->StartFry(*gas_cooker_, [this, sausage, bread, id, handler]() {
             auto sausage_timer = std::make_shared<net::steady_timer>(io_, HotDog::MIN_SAUSAGE_COOK_DURATION);
-            sausage_timer->async_wait([this, sausage, bread, id, handler, sausage_timer](const boost::system::error_code&) {
+            sausage_timer->async_wait(net::bind_executor(strand_, [this, sausage, bread, id, handler, sausage_timer](const boost::system::error_code& ec) {
                 sausage->StopFry();
-                HandleIngredientDone(id, handler);
-                });
+                HandleIngredientDone(id, handler, sausage, bread, "sausage");
+                }));
             });
 
         // Начало приготовления булки
         bread->StartBake(*gas_cooker_, [this, sausage, bread, id, handler]() {
             auto bread_timer = std::make_shared<net::steady_timer>(io_, HotDog::MIN_BREAD_COOK_DURATION);
-            bread_timer->async_wait([this, sausage, bread, id, handler, bread_timer](const boost::system::error_code&) {
+            bread_timer->async_wait(net::bind_executor(strand_, [this, sausage, bread, id, handler, bread_timer](const boost::system::error_code& ec) {
                 bread->StopBaking();
-                HandleIngredientDone(id, handler);
-                });
+                HandleIngredientDone(id, handler, sausage, bread, "bread");
+                }));
             });
     }
 
 private:
-    void HandleIngredientDone(int id, HotDogHandler handler) {
-        std::lock_guard<std::mutex> lock(mutex_);
-        auto& state = order_state_[id];
+    void HandleIngredientDone(int id, HotDogHandler handler, std::shared_ptr<Sausage> sausage, std::shared_ptr<Bread> bread, const std::string& ingredient) {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            auto& state = order_state_[id];
 
-        if (state.sausage_done && state.bread_done) {
-            AssembleHotDog(id, state.sausage, state.bread, handler);
+            if (ingredient == "sausage") {
+                state.sausage_done = true;
+                state.sausage = sausage;
+            }
+            else if (ingredient == "bread") {
+                state.bread_done = true;
+                state.bread = bread;
+            }
+
+            if (!state.sausage_done || !state.bread_done) {
+                return;
+            }
         }
-        else {
-            state.sausage_done = true;
-            state.bread_done = true;
-        }
+
+        AssembleHotDog(id, sausage, bread, handler);
     }
 
     void AssembleHotDog(int id, std::shared_ptr<Sausage> sausage, std::shared_ptr<Bread> bread, HotDogHandler handler) {
@@ -83,7 +92,10 @@ private:
         catch (const std::invalid_argument& e) {
             handler(Result<HotDog>{std::current_exception()});
         }
-        order_state_.erase(id);
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            order_state_.erase(id);
+        }
     }
 
     struct OrderState {
@@ -94,6 +106,7 @@ private:
     };
 
     net::io_context& io_;
+    net::strand<net::io_context::executor_type> strand_;
     Store store_;
     std::shared_ptr<GasCooker> gas_cooker_;
     std::mutex mutex_;
