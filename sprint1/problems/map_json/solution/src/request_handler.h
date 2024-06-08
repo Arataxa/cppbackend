@@ -83,7 +83,7 @@ private:
 
         boost::json::array maps_json;
         for (const auto& map : game_.GetMaps()) {
-            maps_json.emplace_back(boost::json::array{ {"id", static_cast<std::string>(map.GetId())}, {"name", static_cast<std::string>(map.GetName())} });
+            maps_json.emplace_back(boost::json::object{ {"id", static_cast<std::string>(map.GetId())}, {"name", static_cast<std::string>(map.GetName())} });
         }
 
         response.body() = boost::json::serialize(maps_json);
