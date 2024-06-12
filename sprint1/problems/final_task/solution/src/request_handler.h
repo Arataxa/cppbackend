@@ -93,6 +93,54 @@ private:
         return send(std::move(response));
     }
 
+    boost::json::array SerializeRoads(const std::vector<Road>& roads) {
+        boost::json::array roads_array;
+        for (const auto& road : roads) {
+            boost::json::object road_obj;
+            auto start = road.GetStart();
+            road_obj["x0"] = start.x;
+            road_obj["y0"] = start.y;
+            if (road.IsHorizontal()) {
+                road_obj["x1"] = road.GetEnd().x;
+            }
+            else {
+                road_obj["y1"] = road.GetEnd().y;
+            }
+            roads_array.push_back(road_obj);
+        }
+        return roads_array;
+    }
+
+    boost::json::array SerializeBuildings(const std::vector<Building>& buildings) {
+        boost::json::array buildings_array;
+        for (const auto& building : buildings) {
+            boost::json::object building_obj;
+            auto bounds = building.GetBounds();
+            building_obj["x"] = bounds.position.x;
+            building_obj["y"] = bounds.position.y;
+            building_obj["w"] = bounds.size.width;
+            building_obj["h"] = bounds.size.height;
+            buildings_array.push_back(building_obj);
+        }
+        return buildings_array;
+    }
+
+    boost::json::array SerializeOffices(const std::vector<Office>& offices) {
+        boost::json::array offices_array;
+        for (const auto& office : offices) {
+            boost::json::object office_obj;
+            auto position = office.GetPosition();
+            auto offset = office.GetOffset();
+            office_obj["id"] = boost::json::string(static_cast<std::string>(office.GetId()));
+            office_obj["x"] = position.x;
+            office_obj["y"] = position.y;
+            office_obj["offsetX"] = offset.dx;
+            office_obj["offsetY"] = offset.dy;
+            offices_array.push_back(office_obj);
+        }
+        return offices_array;
+    }
+
     template <typename Body, typename Allocator, typename Send>
     void HandleGetMapRequest(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send, const model::Map& map) const {
         http::response<http::string_body> response;
@@ -102,59 +150,12 @@ private:
         response.set(http::field::content_type, "application/json");
         response.keep_alive(req.keep_alive());
 
-        boost::json::array roads;
-        for (const auto& road : map.GetRoads()) {
-            boost::json::object road_obj;
-
-            auto start = road.GetStart();
-            road_obj["x0"] = start.x;
-            road_obj["y0"] = start.y;
-
-            if (road.IsHorizontal()) {
-                road_obj["x1"] = road.GetEnd().x;
-            }
-            else {
-                road_obj["y1"] = road.GetEnd().y;
-            }
-
-            roads.push_back(road_obj);
-        }
-
-        boost::json::array buildings;
-        for (const auto& building : map.GetBuildings()) {
-            boost::json::object building_obj;
-
-            auto bounds = building.GetBounds();
-            building_obj["x"] = bounds.position.x;
-            building_obj["y"] = bounds.position.y;
-            building_obj["w"] = bounds.size.width;
-            building_obj["h"] = bounds.size.height;
-
-            buildings.push_back(building_obj);
-        }
-
-        boost::json::array offices;
-        for (const auto& office : map.GetOffices()) {
-            boost::json::object office_obj;
-
-            auto position = office.GetPosition();
-            auto offset = office.GetOffset();
-
-            office_obj["id"] = boost::json::string(static_cast<std::string>(office.GetId()));
-            office_obj["x"] = position.x;
-            office_obj["y"] = position.y;
-            office_obj["offsetX"] = offset.dx;
-            office_obj["offsetY"] = offset.dy;
-
-            offices.push_back(office_obj);
-        }
-
         boost::json::object map_obj{
             {"id", static_cast<std::string>(map.GetId())},
             {"name", map.GetName()},
-            {"roads", roads},
-            {"buildings", buildings},
-            {"offices", offices}
+            {"roads", SerializeRoads(map.GetRoads())},
+            {"buildings", SerializeBuildings(map.GetBuildings())},
+            {"offices", SerializeOffices(map.GetOffices())}
         };
 
         response.body() = boost::json::serialize(map_obj);
