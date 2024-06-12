@@ -165,7 +165,7 @@ namespace http_handler {
 
             boost::json::array buildings = SerializeBuildings(map.GetBuildings());
 
-            boost::json::array offices = SerializeBuildings(map.GetOffices());
+            boost::json::array offices = SerializeOffices(map.GetOffices());
 
             boost::json::object map_obj{
                 {"id", static_cast<std::string>(map.GetId())},
