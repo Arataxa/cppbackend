@@ -61,7 +61,7 @@ namespace http_handler {
                 return;
             }
 
-            std::string map_id_str = target_str.substr(expected_prefix.size());
+            std::string map_id_str = target_str.substr(expected_prefix.size() + 1);
             model::Map::Id map_id = model::Map::Id(map_id_str);
 
             if (const auto map = game_.FindMap(map_id)) {
