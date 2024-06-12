@@ -16,6 +16,7 @@
 #include <thread>
 #include <vector>
 #include <algorithm>
+#include <iterator>
 
 namespace http_handler {
 namespace beast = boost::beast;
