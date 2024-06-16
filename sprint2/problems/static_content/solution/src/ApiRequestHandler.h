@@ -50,7 +50,7 @@ namespace http_handler {
             std::string expected_prefix = "/api/v1/maps";
 
             if (expected_prefix != target_str.substr(0, expected_prefix.size())) {
-                HandleBadRequest(std::move(request), std::forward<Send>(send), "Invalid request-target", http::status::bad_request);
+                HandleBadRequest(std::move(request), std::forward<Send>(send), "Bad request", http::status::bad_request);
                 return;
             }
 

@@ -41,10 +41,13 @@ namespace http_handler {
 	private:
 		template <typename Body, typename Allocator, typename Send>
 		void HandleGetRequest(http::request<Body, http::basic_fields<Allocator>>&& request, Send&& send) {
-			std::cout << "handle get request joined" << std::endl;
-			std::string target = static_root_path_.string() + '\\' + UrlDecode(request.target().to_string());
+			std::string target = static_root_path_.string() + UrlDecode(request.target().to_string());
+
+			if (target == static_root_path_.string() + "/") {
+				target += "/index.html";
+			}
+
 			fs::path full_path = fs::weakly_canonical(target);
-			std::cout << full_path.string() << " full path" << std::endl;
 
 			if (!IsSubPath(full_path, static_root_path_)) {
 				HandleBadRequest(std::move(request), std::forward<Send>(send)
