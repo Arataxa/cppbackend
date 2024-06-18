@@ -49,11 +49,11 @@ class Logger {
 
         current_file_date_ = GetFileTimeStamp();
 
-        std::string file_path = log_directory_ + "sample_log" + current_file_date_ + ".log";
+        std::string file_path = log_directory_ + "sample_log_" + current_file_date_ + ".log";
         log_file_.open(file_path,std::ios::app);
 
         if (!log_file_.is_open()) {
-            throw std::runtime_error("Failed to open log file: " + file_path);
+            throw std::runtime_error("Failed to open log file xd: " + file_path);
         }
     }
 
