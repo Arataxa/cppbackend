@@ -59,8 +59,15 @@ class Logger {
     }
 
     Logger() {
-        std::filesystem::create_directories("var");
-        std::filesystem::create_directories("var/log");
+        if (std::filesystem::exists("/var/log") && std::filesystem::is_directory("/var/log")) {
+            log_directory_ = "/var/log/";
+        }
+        else {
+            log_directory_ = "./logs/";
+            if (!std::filesystem::exists(log_directory_)) {
+                std::filesystem::create_directories(log_directory_);
+            }
+        }
     }
     Logger(const Logger&) = delete;
 
