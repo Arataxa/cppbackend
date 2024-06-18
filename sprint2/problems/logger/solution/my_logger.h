@@ -9,6 +9,7 @@
 #include <optional>
 #include <mutex>
 #include <thread>
+#include <filesystem>
 
 using namespace std::literals;
 
@@ -49,7 +50,7 @@ class Logger {
 
         current_file_date_ = GetFileTimeStamp();
 
-        std::string file_path = "sample_log_" + current_file_date_ + ".log";
+        std::string file_path = log_directory_ + "sample_log_" + current_file_date_ + ".log";
         log_file_.open(file_path,std::ios::app);
 
         if (!log_file_.is_open()) {
@@ -57,7 +58,10 @@ class Logger {
         }
     }
 
-    Logger() = default;
+    Logger() {
+        std::filesystem::create_directories("var");
+        std::filesystem::create_directories("var/log");
+    }
     Logger(const Logger&) = delete;
 
 public:
@@ -93,6 +97,6 @@ private:
     std::optional<std::chrono::system_clock::time_point> manual_ts_;
 
     std::string current_file_date_;
-    //std::string log_directory_ = "./var/log/";
+    std::string log_directory_ = "./var/log/";
     std::ofstream log_file_;
 };
