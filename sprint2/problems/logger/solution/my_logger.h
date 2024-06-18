@@ -93,6 +93,6 @@ private:
     std::optional<std::chrono::system_clock::time_point> manual_ts_;
 
     std::string current_file_date_;
-    std::string log_directory_ = "/var/log/";
+    std::string log_directory_ = "./var/log/";
     std::ofstream log_file_;
 };
