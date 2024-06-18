@@ -2,10 +2,13 @@
 
 #include <string_view>
 #include <thread>
+#include <filesystem>
 
 using namespace std::literals;
 
 int main() {
+    std::filesystem::create_directories("var");
+    std::filesystem::create_directories("var/log");
     // Будем устанавливать моменты времени в секундах от начала эпохи.
     // Конкретные значения не так важны, главное, что часы идут монотонно.
     Logger::GetInstance().SetTimestamp(std::chrono::system_clock::time_point{1000000s});
