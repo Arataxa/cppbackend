@@ -38,7 +38,7 @@ class Logger {
         const auto t_c = std::chrono::system_clock::to_time_t(now);
 
         std::ostringstream oss;
-        oss << std::put_time(std::localtime(&t_c), "%Y_%M_%D");
+        oss << std::put_time(std::localtime(&t_c), "%Y_%m_%d");
         return oss.str();
     }
 
