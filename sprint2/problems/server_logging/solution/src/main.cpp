@@ -6,6 +6,7 @@
 
 #include <thread>
 
+#include <boost/json/src.hpp>
 #include <boost/asio.hpp>
 
 using namespace std::literals;
