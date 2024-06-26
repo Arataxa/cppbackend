@@ -16,8 +16,8 @@ COPY CMakeLists.txt conanfile.txt /app/
 
 RUN conan profile new default --detect && \
     mkdir /app/build && cd /app/build && \
-    conan install .. --build=missing -s compiler.libcxx=libstdc++11 -s build_type=Debug && \
-    cmake -DCMAKE_BUILD_TYPE=Debug .. && \
+    conan install .. --build=missing -s compiler.libcxx=libstdc++11 -s build_type=Release && \
+    cmake -DCMAKE_BUILD_TYPE=Release .. && \
     cmake --build . 
  
 FROM ubuntu:22.04 as run

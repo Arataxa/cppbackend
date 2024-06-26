@@ -60,6 +60,7 @@ int main(int argc, const char* argv[]) {
         return EXIT_FAILURE;
     }
     try {
+        std::cout << std::unitbuf;
         InitializeLogger();
 
         // 1. Загружаем карту из файла и построить модель игры
