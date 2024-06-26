@@ -90,16 +90,15 @@ int main(int argc, const char* argv[]) {
 
         //// 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         std::string interface_address = "0.0.0.0";
-        std::string port_string = "8080";
 
         const auto address = net::ip::make_address(interface_address);
-        const unsigned short port = static_cast<unsigned short>(std::stoi(port_string));
+        const unsigned short port = 8080;
         http_server::ServeHttp(ioc, { address, port }, [&handler](auto&& req, auto&& send) {
             handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
             });
 
         boost::json::value data{ 
-            {"port", port_string}, 
+            {"port", port}, 
             {"address", interface_address}};
         BOOST_LOG_TRIVIAL(info) << boost::log::add_value(additional_data, data) << "server started";
 
