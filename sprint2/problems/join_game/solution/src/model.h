@@ -6,6 +6,7 @@
 #include <random>
 #include <sstream>
 #include <iomanip>
+#include <memory>
 #include <map>
 
 #include "tagged.h"
