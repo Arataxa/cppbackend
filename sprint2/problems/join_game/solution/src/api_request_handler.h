@@ -103,18 +103,6 @@ namespace http_handler {
 
             auto* map = game.FindMap(model::Map::Id(map_id));
 
-            if (!map) {
-                BadRequestBuilder handler;
-                handler.version = request.version();
-                handler.status = http::status::not_found;
-                handler.cache_control = true;
-                handler.code = "mapNotFound";
-                handler.message = "Map not found";
-
-                handler.HandleBadRequest(std::move(send));
-                return;
-            }
-
             if (user_name.empty()) {
                 BadRequestBuilder handler;
                 handler.version = request.version();
@@ -122,6 +110,18 @@ namespace http_handler {
                 handler.cache_control = true;
                 handler.code = "invalidArgument";
                 handler.message = "Invalid name";
+
+                handler.HandleBadRequest(std::move(send));
+                return;
+            }
+
+            if (!map) {
+                BadRequestBuilder handler;
+                handler.version = request.version();
+                handler.status = http::status::not_found;
+                handler.cache_control = true;
+                handler.code = "mapNotFound";
+                handler.message = "Map not found";
 
                 handler.HandleBadRequest(std::move(send));
                 return;
@@ -220,9 +220,7 @@ namespace http_handler {
                 return;
             }
 
-
             auto auth_field = request[http::field::authorization];
-
             if (auth_field.empty() || !auth_field.starts_with("Bearer ")) {
                 BadRequestBuilder handler;
                 handler.version = request.version();
@@ -236,12 +234,13 @@ namespace http_handler {
             }
 
             std::string auth_token = std::string(auth_field.substr(7));
-            
-            const std::vector<model::Player>* players;
+            std::vector<const model::Player*> players;
 
             try {
-                auto session = game.GetPlayerSession(model::PlayerToken::FromString(auth_token));
-                players = &game.GetPlayersInSession(*session);
+                auto token = model::PlayerToken::FromString(auth_token);
+
+                const auto* player = game.GetPlayer(token);
+                players = player->GetSession()->GetPlayersVector();
             }
             catch (const std::out_of_range&) {
                 BadRequestBuilder handler;
@@ -256,29 +255,31 @@ namespace http_handler {
             }
 
             http::response<http::string_body> response;
-
-            boost::json::object json_body;
-
-            if (players != nullptr) {
-                for (const auto& player : *players) {
-                    json_body[std::to_string(player.GetId())] = boost::json::object({ {"name", player.GetName()} });
-                }
-            }
-
             response.result(http::status::ok);
             response.version(request.version());
             response.set(http::field::content_type, "application/json");
             response.set(http::field::cache_control, "no-cache");
             response.keep_alive(request.keep_alive());
 
-            response.body() = boost::json::serialize(json_body);
-            response.content_length(response.body().size());
+            if (request.method() != http::verb::head) {
+                boost::json::object json_body;
+
+                for (const auto& player : players) {
+                    json_body[std::to_string(player->GetId())] = boost::json::object({ {"name", player->GetName()} });
+                }
+
+                response.body() = boost::json::serialize(json_body);
+                response.content_length(response.body().size());
+            }
+            else {
+                response.content_length(0);
+            }
 
             response.prepare_payload();
+
             return send(std::move(response));
 
         }
-
 
         class ApiRequestHandler {
         public:

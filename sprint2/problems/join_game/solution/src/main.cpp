@@ -86,7 +86,7 @@ int main(int argc, const char* argv[]) {
             });
 
         //// 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
-        http_handler::FrontController handler{ game, argv[2] };
+        http_handler::FrontController handler{ game, argv[2], ioc };
 
         //// 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
         std::string interface_address = "0.0.0.0";

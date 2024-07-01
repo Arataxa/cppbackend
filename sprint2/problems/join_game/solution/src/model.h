@@ -9,6 +9,8 @@
 #include <memory>
 #include <map>
 
+#include <iostream>
+
 #include "tagged.h"
 
 namespace model {
@@ -217,6 +219,12 @@ private:
     static std::uniform_int_distribution<uint64_t> dist;
 };
 
+struct PlayerTokenHash {
+    std::size_t operator()(const PlayerToken& token) const {
+        return std::hash<uint64_t>{}(token.part_1) ^ std::hash<uint64_t>{}(token.part_2);
+    }
+};
+
 class Dog {
 public:
     Dog(std::string& name, size_t id) : name_(name), id_(id) {
@@ -238,8 +246,8 @@ class GameSession;
 
 class Player {
 public:
-    Player(PlayerToken token, Dog dog, GameSession& session)
-        : token_(std::move(token)), dog_(dog), session_(session) {
+    Player(Dog dog, GameSession& session)
+        :  dog_(dog), session_(session) {
     }
 
     size_t GetId() const {
@@ -255,7 +263,7 @@ public:
     }
 
 private:
-    PlayerToken token_;
+    //PlayerToken token_;
     Dog dog_;
     GameSession& session_;
 };
@@ -266,21 +274,30 @@ public:
     }
 
     std::pair<PlayerToken, size_t> AddPlayer(std::string& name) {
+
         auto token = PlayerToken::GenerateToken();
-        auto it = players_.emplace_back(token, Dog{ name, players_.size() }, *this);
 
-        return { token, it.GetId() };
+        Player player(Dog{ name, players_.size() }, *this);
+        auto it = players_.emplace(token, std::move(player));
+
+        return { token, it.first->second.GetId() };
     }
 
-    Player* GetPlayerById(size_t id) {
-        return &players_[id];
+    const Player* GetPlayer(PlayerToken token) const {
+        return &players_.at(token);
     }
 
-    const std::vector<Player>& GetPlayers() const {
-        return players_;
+    std::vector<const Player*> GetPlayersVector() const {
+        std::vector<const Player*> result;
+
+        for (const auto& [key, player] : players_) {
+            result.push_back(&player);
+        }
+
+        return result;
     }
 private:
-    std::vector<Player> players_;
+    std::unordered_map<PlayerToken, Player, PlayerTokenHash> players_;
     std::shared_ptr<Map> map_;
 };
 
@@ -303,7 +320,7 @@ public:
 
     std::pair<PlayerToken, size_t> AddPlayer(const Map* map, std::string& name) {
         auto it = sessions_.find(map->GetId());
-
+        
         if (it == sessions_.end()) {
             GameSession new_session(*map);
             it = sessions_.emplace(map->GetId(), std::move(new_session)).first;
@@ -311,24 +328,28 @@ public:
 
         auto data = it->second.AddPlayer(name);
 
-        players_.emplace(data.first, it->second.GetPlayerById(data.second));
+        players_.emplace(data.first, it->second.GetPlayer(data.first));
 
         return data;
     }
 
-    const GameSession* GetPlayerSession(const PlayerToken& token) const {
-        return players_.at(token)->GetSession();
+    const Player* GetPlayer(const PlayerToken& token) const {
+        auto it = players_.find(token);
+        if (it != players_.end()) {
+            return it->second;
+        }
+        return nullptr;
     }
 
-    const std::vector<Player>& GetPlayersInSession(const GameSession& session) {
-        return session.GetPlayers();
+    std::vector<const Player*> GetPlayersInSession(const GameSession& session) const {
+        return session.GetPlayersVector();
     }
 
 private:
     using MapIdHasher = util::TaggedHasher<Map::Id>;
     using MapIdToIndex = std::unordered_map<Map::Id, size_t, MapIdHasher>;
 
-    std::map<PlayerToken, Player*> players_;
+    std::unordered_map<PlayerToken, const Player*, PlayerTokenHash> players_;
     std::map<Map::Id, GameSession> sessions_;
     std::vector<Map> maps_;
     MapIdToIndex map_id_to_index_;

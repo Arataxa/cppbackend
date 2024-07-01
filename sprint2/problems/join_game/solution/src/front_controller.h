@@ -29,8 +29,8 @@ namespace http_handler {
 
     class FrontController {
     public:
-        explicit FrontController(model::Game& game, const std::string& static_root) 
-            : game_(game), static_root_(static_root) {
+        explicit FrontController(model::Game& game, const std::string& static_root, boost::asio::io_context& ioc)
+            : game_(game), static_root_(static_root), strand_(boost::asio::make_strand(ioc)) {
         }
 
         template <typename Body, typename Allocator, typename Send>
@@ -39,8 +39,10 @@ namespace http_handler {
 
 
             if (target.starts_with("/api/")) {
-                api_handler::ApiRequestHandler handler(game_);
-                handler.HandleRequest(std::move(req), std::forward<Send>(send));
+                boost::asio::dispatch(strand_, [this, req = std::move(req), send = std::move(send)]() mutable {
+                    api_handler::ApiRequestHandler handler(game_);
+                    handler.HandleRequest(std::move(req), std::forward<Send>(send));
+                    });
             }
             else {
                 StaticRequestHandler handler(static_root_);
@@ -50,5 +52,6 @@ namespace http_handler {
     private:
         model::Game& game_;
         std::string static_root_;
+        boost::asio::strand<boost::asio::io_context::executor_type> strand_; 
     };
 }  // namespace http_handler
