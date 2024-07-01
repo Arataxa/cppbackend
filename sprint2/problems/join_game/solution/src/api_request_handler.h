@@ -236,13 +236,11 @@ namespace http_handler {
             std::string auth_token = std::string(auth_field.substr(7));
             std::vector<const model::Player*> players;
 
-            try {
-                auto token = model::PlayerToken::FromString(auth_token);
+            auto token = model::PlayerToken::FromString(auth_token);
 
-                const auto* player = game.GetPlayer(token);
-                players = player->GetSession()->GetPlayersVector();
-            }
-            catch (const std::out_of_range&) {
+            const auto* player = game.GetPlayer(token);
+
+            if (!player) {
                 BadRequestBuilder handler;
                 handler.version = request.version();
                 handler.status = http::status::unauthorized;
@@ -253,6 +251,8 @@ namespace http_handler {
                 handler.HandleBadRequest(std::move(send));
                 return;
             }
+
+            players = player->GetSession()->GetPlayersVector();
 
             http::response<http::string_body> response;
             response.result(http::status::ok);
