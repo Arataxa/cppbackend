@@ -208,6 +208,18 @@ namespace http_handler {
                 }
 
                 std::string auth_token = std::string(auth_field.substr(7));
+                if (auth_token.size() != 32) {
+                    BadRequestBuilder handler;
+                    handler.version = request_.version();
+                    handler.status = http::status::unauthorized;
+                    handler.cache_control = true;
+                    handler.code = "invalidToken";
+                    handler.message = "Token has an invalid length";
+
+                    handler.HandleBadRequest(std::move(send_));
+                    return {};
+                }
+
 
                 auto token = application::player::PlayerToken::FromString(auth_token);
 
