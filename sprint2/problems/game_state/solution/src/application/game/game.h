@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <map>
+#include <memory>
 
 #include "map.h"
 #include "player.h"
