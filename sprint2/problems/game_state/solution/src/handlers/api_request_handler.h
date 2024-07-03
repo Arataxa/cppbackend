@@ -296,9 +296,9 @@ namespace http_handler {
                         Coordinates position = player->GetPosition();
                         Speed speed = player->GetSpeed();
 
-                        player_body["pos"] = boost::json::array(position.x, position.y);
+                        player_body["pos"] = boost::json::array({ position.x, position.y });
 
-                        player_body["speed"] = boost::json::array(0.0, 0.0);
+                        player_body["speed"] = boost::json::array({ 0.0, 0.0 });
 
                         std::string string_direction;
 
