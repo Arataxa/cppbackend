@@ -424,6 +424,10 @@ namespace http_handler {
                 response.version(request_.version());
                 response.set(http::field::content_type, "application/json");
                 response.set(http::field::cache_control, "no-cache");
+
+                boost::json::object obj;
+                response.body() = boost::json::serialize(obj);
+
                 response.content_length(response.body().size());
 
                 response.prepare_payload();
@@ -476,6 +480,10 @@ namespace http_handler {
                 response.version(request_.version());
                 response.set(http::field::content_type, "application/json");
                 response.set(http::field::cache_control, "no-cache");
+
+                boost::json::object obj;
+                response.body() = boost::json::serialize(obj);
+
                 response.content_length(response.body().size());
 
                 response.prepare_payload();
