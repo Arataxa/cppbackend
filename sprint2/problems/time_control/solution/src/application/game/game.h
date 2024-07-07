@@ -6,7 +6,8 @@
 #include <memory>
 #include <thread>
 #include <vector>
-#include <future>
+
+#include "boost/asio.hpp"
 
 #include "map.h"
 #include "player.h"
@@ -28,43 +29,13 @@ namespace application {
 
             double GetSpeed() const;
 
-            const Map* GetMap() const {
-                return map_.get();
-            }
+            const Map* GetMap() const;
 
-            const Road* GetHorizontalRoad(int y) const {
-                auto it = horizontal_roads_.find(y);
+            const Road* GetHorizontalRoad(int y) const;
 
-                if (it == horizontal_roads_.end()) {
-                    return nullptr;
-                }
+            const Road* GetVerticalRoad(int x) const;
 
-                return it->second;
-            }
-
-            const Road* GetVerticalRoad(int x) const {
-                auto it = vertical_roads_.find(x);
-
-                if (it == vertical_roads_.end()) {
-                    return nullptr;
-                }
-
-                return it->second;
-            }
-
-            void ProcessTimeMovement(int time) {
-                std::vector<std::future<void>> futures;
-
-                for (auto& player : players_) {
-                    // Запускаем Move асинхронно для каждого игрока
-                    futures.push_back(std::async(std::launch::async, &Player::Move, &player.second, time));
-                }
-
-                // Ждем завершения всех асинхронных вызовов
-                for (auto& future : futures) {
-                    future.get();
-                }
-            }
+            void ProcessTimeMovement(double time);
 
         private:
             std::shared_ptr<Map> map_;
@@ -89,17 +60,7 @@ namespace application {
 
             std::vector<Player*> GetPlayersInSession(GameSession& session);
 
-            void ProcessTimeMovement(int time) {
-                std::vector<std::future<void>> futures;
-
-                for (auto& session : sessions_) {
-                    futures.push_back(std::async(std::launch::async, &GameSession::ProcessTimeMovement, session.second, time));
-                }
-
-                for (auto& future : futures) {
-                    future.get();
-                }
-            }
+            void ProcessTimeMovement(double time);
 
         private:
             using MapIdToIndex = std::unordered_map<std::string, size_t>;

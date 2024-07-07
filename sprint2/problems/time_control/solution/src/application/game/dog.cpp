@@ -30,6 +30,11 @@ namespace application {
             direction_ = direction;
         }
 
+        void Dog::SetCoordinates(Coordinates& new_coordinates) {
+            coordinates_.x = new_coordinates.x;
+            coordinates_.y = new_coordinates.y;
+        }
+
         void Dog::ChangeSpeed(double speed) {
             switch (direction_) {
             case Direction::NORTH:

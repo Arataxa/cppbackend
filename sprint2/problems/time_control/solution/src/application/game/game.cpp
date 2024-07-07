@@ -50,6 +50,41 @@ namespace application {
             return map_->GetSpeed();
         }
 
+        const Map* GameSession::GetMap() const {
+            return map_.get();
+        }
+
+        void GameSession::ProcessTimeMovement(double time) {
+            boost::asio::thread_pool pool(std::thread::hardware_concurrency());
+            for (auto& player : players_) {
+                boost::asio::post(pool, [&player, time]() {
+                    player.second.Move(time);
+                    });
+            }
+
+            pool.join();
+        }
+
+        const Road* GameSession::GetHorizontalRoad(int y) const {
+            auto it = horizontal_roads_.find(y);
+
+            if (it == horizontal_roads_.end()) {
+                return nullptr;
+            }
+
+            return it->second;
+        }
+
+        const Road* GameSession::GetVerticalRoad(int x) const {
+            auto it = vertical_roads_.find(x);
+
+            if (it == vertical_roads_.end()) {
+                return nullptr;
+            }
+
+            return it->second;
+        }
+
         void Game::AddMap(Map map) {
             const size_t index = maps_.size();
             if (auto [it, inserted] = map_id_to_index_.emplace(map.GetId(), index); !inserted) {
@@ -102,6 +137,17 @@ namespace application {
 
         std::vector<Player*> Game::GetPlayersInSession(GameSession& session) {
             return session.GetPlayersVector();
+        }
+
+        void Game::ProcessTimeMovement(double time) {
+            boost::asio::thread_pool pool(std::thread::hardware_concurrency());
+            for (auto& session : sessions_) {
+                boost::asio::post(pool, [&session, time]() {
+                    session.second.ProcessTimeMovement(time);
+                    });
+            }
+
+            pool.join();
         }
 
     } // namespace game

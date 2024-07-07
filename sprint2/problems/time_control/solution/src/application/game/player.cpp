@@ -1,6 +1,8 @@
 #include "player.h"
 #include "game.h"
 
+#include <iostream>
+
 namespace application {
     namespace game {
         namespace player {
@@ -80,7 +82,7 @@ namespace application {
                 dog_.ChangeSpeed(session_.GetSpeed());
             }
 
-            Coordinates Player::ProccessVerticalMovement(int time) {
+            Coordinates Player::ProccessVerticalMovement(double time) {
                 Coordinates new_coordinates;
 
                 Coordinates dog_coordinates = dog_.GetPosition();
@@ -131,7 +133,7 @@ namespace application {
                 return new_coordinates;
             }
 
-            Coordinates Player::ProccessHorizontalMovement(int time) {
+            Coordinates Player::ProccessHorizontalMovement(double time) {
                 Coordinates new_coordinates;
 
                 Coordinates dog_coordinates = dog_.GetPosition();

@@ -3,6 +3,7 @@
 #include "game.h"
 #include "map.h"
 
+#include <iostream>
 
 namespace application {
 	using namespace game;
@@ -30,7 +31,7 @@ namespace application {
 			return game_.GetPlayer(token);
 		}
 
-		void ProcessTime(int time) {
+		void ProcessTime(double time) {
 			game_.ProcessTimeMovement(time);
 		}
 

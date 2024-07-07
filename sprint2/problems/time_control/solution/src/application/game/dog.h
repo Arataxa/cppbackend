@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 #include "utils.h"
 
@@ -26,9 +27,7 @@ namespace application{
 
             void ChangeSpeed(double speed);
 
-            void SetCoordinates(Coordinates new_coordinates) {
-                coordinates_ = new_coordinates;
-            }
+            void SetCoordinates(Coordinates& new_coordinates);
         private:
             Direction direction_;
             Coordinates coordinates_;

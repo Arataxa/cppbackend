@@ -60,7 +60,7 @@ namespace application {
 
                 void ChangeSpeed();
 
-                void Move(int time) {
+                void Move(double time) {
                     Coordinates new_coordinates;
                    
                     Direction direction = dog_.GetDirection();
@@ -79,9 +79,9 @@ namespace application {
                     dog_.SetCoordinates(new_coordinates);
                 }
             private:
-                Coordinates ProccessVerticalMovement(int time);
+                Coordinates ProccessVerticalMovement(double time);
 
-                Coordinates ProccessHorizontalMovement(int time);
+                Coordinates ProccessHorizontalMovement(double time);
 
                 Dog dog_;
                 GameSession& session_;

@@ -472,7 +472,8 @@ namespace http_handler {
                     return;
                 }
 
-                application_.ProcessTime(time);
+                std::cout << "Start ProcessTime" << std::endl;
+                application_.ProcessTime(time/1000.0);
 
                 http::response<http::string_body> response;
 
@@ -504,12 +505,14 @@ namespace http_handler {
             response.result(http::status::ok);
             response.version(request.version());
             response.set(http::field::content_type, "application/json");
+            response.set(http::field::cache_control, "no-cache");
             response.keep_alive(request.keep_alive());
 
             boost::json::array maps_json;
             for (const auto& map : application.GetMaps()) {
                 maps_json.emplace_back(boost::json::object{ {"id", static_cast<std::string>(map.GetId())}, {"name", static_cast<std::string>(map.GetName())} });
             }
+
 
             response.body() = boost::json::serialize(maps_json);
             response.content_length(response.body().size());
@@ -544,6 +547,7 @@ namespace http_handler {
             response.result(http::status::ok);
             response.version(request.version());
             response.set(http::field::content_type, "application/json");
+            response.set(http::field::cache_control, "no-cache");
             response.keep_alive(request.keep_alive());
 
             response.body() = boost::json::serialize(JsonSerializer::SerializeMap(*map));
