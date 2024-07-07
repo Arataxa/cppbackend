@@ -109,7 +109,6 @@ namespace application {
                     }
                 }
                 else {
-                    dog_.SetSpeed({0, 0});
                     auto start = horizontal_road->GetStart();
 
                     new_coordinates.x = start.x;
