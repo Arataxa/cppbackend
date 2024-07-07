@@ -99,7 +99,7 @@ namespace application {
                     auto start = vertical_road->GetStart();
                     auto end = vertical_road->GetEnd();
 
-                    new_coordinates.x = start.x;
+                    new_coordinates.x = dog_coordinates.x;
 
                     if (direction == Direction::NORTH) {
                         limit_y = std::min(start.y, end.y) - 0.4;
@@ -111,7 +111,7 @@ namespace application {
                 else {
                     auto start = horizontal_road->GetStart();
 
-                    new_coordinates.x = start.x;
+                    new_coordinates.x = dog_coordinates.x;
 
                     if (direction == Direction::NORTH) {
                         limit_y = start.y - 0.4;
@@ -154,7 +154,7 @@ namespace application {
                     auto start = horizontal_road->GetStart();
                     auto end = horizontal_road->GetEnd();
 
-                    new_coordinates.y = start.y;
+                    new_coordinates.y = dog_coordinates.y;
 
                     if (direction == Direction::EAST) {
                         limit_x = std::max(start.x, end.x) + 0.4;
@@ -166,7 +166,7 @@ namespace application {
                 else {
                     auto start = vertical_road->GetStart();
 
-                    new_coordinates.y = start.y;
+                    new_coordinates.y = dog_coordinates.y;
 
                     if (direction == Direction::EAST) {
                         limit_x = start.x + 0.4;

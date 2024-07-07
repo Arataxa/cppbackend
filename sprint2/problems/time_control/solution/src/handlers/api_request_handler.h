@@ -472,7 +472,6 @@ namespace http_handler {
                     return;
                 }
 
-                std::cout << "Start ProcessTime" << std::endl;
                 application_.ProcessTime(time/1000.0);
 
                 http::response<http::string_body> response;
