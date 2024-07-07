@@ -109,6 +109,7 @@ namespace application {
                     }
                 }
                 else {
+                    dog_.SetSpeed({0, 0});
                     auto start = horizontal_road->GetStart();
 
                     new_coordinates.x = start.x;
@@ -123,11 +124,15 @@ namespace application {
 
                 double new_position = dog_coordinates.y + moving_distance;
 
-                if (new_position < limit_y) {
-                    new_coordinates.y = limit_y;
+                if (direction == Direction::SOUTH) {
+                    new_coordinates.y = (new_position > limit_y) ? limit_y : new_position;
                 }
                 else {
-                    new_coordinates.y = new_position;
+                    new_coordinates.y = (new_position < limit_y) ? limit_y : new_position;
+                }
+
+                if (new_coordinates.y == limit_y) {
+                    dog_.SetSpeed({ 0.0, 0.0 });
                 }
 
                 return new_coordinates;
@@ -174,11 +179,15 @@ namespace application {
 
                 double new_position = dog_coordinates.x + moving_distance;
 
-                if (new_position < limit_x) {
-                    new_coordinates.x = limit_x;
+                if (direction == Direction::EAST) {
+                    new_coordinates.x = (new_position > limit_x) ? limit_x : new_position;
                 }
                 else {
-                    new_coordinates.x = new_position;
+                    new_coordinates.x = (new_position < limit_x) ? limit_x : new_position;
+                }
+
+                if (new_coordinates.x == limit_x) {
+                    dog_.SetSpeed({ 0.0, 0.0 });
                 }
 
                 return new_coordinates;

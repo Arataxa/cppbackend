@@ -21,6 +21,10 @@ namespace application{
 
             Speed GetSpeed() const;
 
+            void SetSpeed(Speed speed) {
+                speed_ = speed;
+            }
+
             Direction GetDirection() const;
 
             void SetDirection(Direction direction);
