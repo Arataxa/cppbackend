@@ -1,7 +1,7 @@
 #include "static_request_handler.h"
 
 namespace http_handler {
-	std::string StaticRequestHandler::GetMimeType(const std::string& extension) {
+	std::string GetMimeType(const std::string& extension) {
 		static const std::unordered_map<std::string, std::string> mime_types = {
 			{".html", "text/html"},
 			{".htm", "text/html"},
@@ -31,7 +31,7 @@ namespace http_handler {
 		return "application/octet-stream";
 	}
 
-	std::string StaticRequestHandler::GetMimeTypeFromPath(const std::string& path) {
+	std::string GetMimeTypeFromPath(const std::string& path) {
 		auto dot_pos = path.find_last_of('.');
 		if (dot_pos != std::string::npos) {
 			return GetMimeType(path.substr(dot_pos));
@@ -39,13 +39,13 @@ namespace http_handler {
 		return "application/octet-stream";
 	}
 
-	bool StaticRequestHandler::IsSubPath(const fs::path& path, const fs::path& base) {
+	bool IsSubPath(const fs::path& path, const fs::path& base) {
 		auto canonical_path = fs::weakly_canonical(path);
 		auto canonical_base = fs::weakly_canonical(base);
 		return std::mismatch(canonical_base.begin(), canonical_base.end(), canonical_path.begin()).first == canonical_base.end();
 	}
 
-	std::string StaticRequestHandler::UrlDecode(const std::string& encoded) {
+	std::string UrlDecode(const std::string& encoded) {
 		std::ostringstream decoded;
 		for (size_t i = 0; i < encoded.length(); ++i) {
 			if (encoded[i] == '%' && i + 2 < encoded.length()) {

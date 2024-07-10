@@ -30,14 +30,16 @@ namespace http_handler {
 
     class FrontController {
     public:
-        explicit FrontController(application::Application& application, const std::string& static_root, boost::asio::strand<boost::asio::io_context::executor_type>& strand, bool is_tick_request_allowed)
+        explicit FrontController(application::Application& application, 
+            const std::string& static_root, 
+            boost::asio::strand<boost::asio::io_context::executor_type>& strand, 
+            bool is_tick_request_allowed)
             : application_(application), static_root_(static_root), strand_(strand), is_tick_request_allowed_(is_tick_request_allowed) {
         }
 
         template <typename Body, typename Allocator, typename Send>
         void operator()(http::request<Body, http::basic_fields<Allocator>>&& req, Send&& send) {
             const std::string target = req.target().to_string();
-
 
             if (target.starts_with("/api/")) {
                 boost::asio::dispatch(strand_, [this, req = std::move(req), send = std::move(send)]() mutable {

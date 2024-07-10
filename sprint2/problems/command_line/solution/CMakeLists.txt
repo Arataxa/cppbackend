@@ -23,7 +23,7 @@ add_executable(game_server
 	src/handlers/static_request_handler.h
 	src/handlers/static_request_handler.cpp	
 	src/logging/logger.h
-	src/utility/ticker.cpp
+	src/utility/ticker.h
 	src/application/application.h
 	src/application/application.cpp
 	src/application/game/dog.h

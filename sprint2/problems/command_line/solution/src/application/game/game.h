@@ -29,7 +29,7 @@ namespace application {
 
             double GetSpeed() const;
 
-            const Map* GetMap() const;
+            const std::shared_ptr<Map> GetMap() const;
 
             const Road* GetHorizontalRoad(int y) const;
 
@@ -49,9 +49,7 @@ namespace application {
         public:
             using Maps = std::vector<Map>;
 
-            Game(bool is_random_spawn) : is_random_spawn_(is_random_spawn) {
-
-            }
+            explicit Game(bool is_random_spawn);
 
             void AddMap(Map map);
 

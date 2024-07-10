@@ -11,7 +11,7 @@ namespace application {
 
 	class Application {
 	public:
-		Application(Game&& game);
+		explicit Application(Game&& game);
 
 		std::pair<PlayerToken, size_t> JoinGame(const Map* map, std::string& name);
 

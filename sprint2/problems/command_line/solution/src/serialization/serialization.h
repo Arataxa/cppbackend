@@ -19,8 +19,8 @@ private:
     private:
         static boost::json::array SerializeRoads(const std::vector<map::Road>& roads);
 
-        static boost::json::array SerializeBuildings(const std::vector<map::Building> buildings);
+        static boost::json::array SerializeBuildings(const std::vector<map::Building>& buildings);
 
-        static boost::json::array SerializeOffices(const std::vector<map::Office> offices);
+        static boost::json::array SerializeOffices(const std::vector<map::Office>& offices);
     };
 };

@@ -38,7 +38,7 @@ boost::json::array JsonSerializer::MapSerialazer::SerializeRoads(const std::vect
     return roads_array;
 }
 
-boost::json::array JsonSerializer::MapSerialazer::SerializeBuildings(const std::vector<map::Building> buildings) {
+boost::json::array JsonSerializer::MapSerialazer::SerializeBuildings(const std::vector<map::Building>& buildings) {
     boost::json::array buildings_array;
     for (const auto& building : buildings) {
         boost::json::object building_obj;
@@ -55,7 +55,7 @@ boost::json::array JsonSerializer::MapSerialazer::SerializeBuildings(const std::
     return buildings_array;
 }
 
-boost::json::array JsonSerializer::MapSerialazer::SerializeOffices(const std::vector<map::Office> offices) {
+boost::json::array JsonSerializer::MapSerialazer::SerializeOffices(const std::vector<map::Office>& offices) {
     boost::json::array offices_array;
     for (const auto& office : offices) {
         boost::json::object office_obj;

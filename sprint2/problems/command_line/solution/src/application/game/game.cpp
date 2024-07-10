@@ -50,8 +50,8 @@ namespace application {
             return map_->GetSpeed();
         }
 
-        const Map* GameSession::GetMap() const {
-            return map_.get();
+        const std::shared_ptr<Map> GameSession::GetMap() const {
+            return map_;
         }
 
         void GameSession::ProcessTimeMovement(double time) {
@@ -83,6 +83,10 @@ namespace application {
             }
 
             return it->second;
+        }
+
+        Game::Game(bool is_random_spawn) : is_random_spawn_(is_random_spawn) {
+
         }
 
         void Game::AddMap(Map map) {

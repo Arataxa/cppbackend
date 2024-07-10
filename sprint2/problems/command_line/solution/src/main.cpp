@@ -3,7 +3,7 @@
 #include "logger.h"
 #include "json_loader.h"
 #include "front_controller.h"
-#include "ticker.cpp"
+#include "ticker.h"
 
 #include <boost/program_options.hpp>
 #include <boost/json/src.hpp>

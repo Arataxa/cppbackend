@@ -21,9 +21,7 @@ namespace application{
 
             Speed GetSpeed() const;
 
-            void SetSpeed(Speed speed) {
-                speed_ = speed;
-            }
+            void SetSpeed(const Speed& speed);
 
             Direction GetDirection() const;
 
@@ -31,7 +29,7 @@ namespace application{
 
             void ChangeSpeed(double speed);
 
-            void SetCoordinates(Coordinates& new_coordinates);
+            void SetCoordinates(const Coordinates& new_coordinates);
         private:
             Direction direction_;
             Coordinates coordinates_;

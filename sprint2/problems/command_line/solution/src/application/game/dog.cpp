@@ -30,7 +30,11 @@ namespace application {
             direction_ = direction;
         }
 
-        void Dog::SetCoordinates(Coordinates& new_coordinates) {
+        void Dog::SetSpeed(const Speed& speed) {
+            speed_ = speed;
+        }
+
+        void Dog::SetCoordinates(const Coordinates& new_coordinates) {
             coordinates_.x = new_coordinates.x;
             coordinates_.y = new_coordinates.y;
         }

@@ -21,6 +21,14 @@ namespace http_handler {
 	using namespace std::literals;
 	namespace fs = std::filesystem;
 
+	std::string GetMimeType(const std::string& extension);
+
+	std::string GetMimeTypeFromPath(const std::string& path);
+
+	bool IsSubPath(const fs::path& path, const fs::path& base);
+
+	std::string UrlDecode(const std::string& encoded);
+
 	class StaticRequestHandler {
 	public:
 		StaticRequestHandler(std::string& static_root) : static_root_path_(static_root) {
@@ -99,14 +107,6 @@ namespace http_handler {
 			response.prepare_payload();
 			return send(std::move(response));
 		}
-
-		std::string GetMimeType(const std::string& extension);
-
-		std::string GetMimeTypeFromPath(const std::string& path);
-
-		bool IsSubPath(const fs::path& path, const fs::path& base);
-
-		std::string UrlDecode(const std::string& encoded);
 
 		fs::path static_root_path_;
 	}; // class StaticRequestHandler
