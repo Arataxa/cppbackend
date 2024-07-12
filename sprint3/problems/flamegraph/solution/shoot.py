@@ -3,6 +3,7 @@ import subprocess
 import time
 import random
 import shlex
+import os
 
 RANDOM_LIMIT = 1000
 SEED = 123456789
@@ -15,6 +16,8 @@ AMMUNITION = [
 
 SHOOT_COUNT = 100
 COOLDOWN = 0.1
+FLAMEGRAPH_REPO = 'https://github.com/brendangregg/FlameGraph.git'
+FLAMEGRAPH_DIR = 'FlameGraph'
 
 
 def start_server():
@@ -47,8 +50,18 @@ def make_shots():
     print('Shooting complete')
 
 
+def clone_flamegraph_repo():
+    if not os.path.exists(FLAMEGRAPH_DIR):
+        subprocess.run(['git', 'clone', FLAMEGRAPH_REPO])
+    else:
+        print(f"{FLAMEGRAPH_DIR} already exists.")
+
+
 def main():
     server_command = start_server()
+    
+    # Клонирование репозитория FlameGraph, если он еще не был клонирован
+    clone_flamegraph_repo()
     
     # Запуск сервера
     server_process = run(server_command)
@@ -69,8 +82,8 @@ def main():
     # Построение флеймграфа
     flamegraph_command = (
         "perf script -i perf.data | "
-        "FlameGraph/stackcollapse-perf.pl | "
-        "FlameGraph/flamegraph.pl > graph.svg"
+        "./FlameGraph/stackcollapse-perf.pl | "
+        "./FlameGraph/flamegraph.pl > graph.svg"
     )
     subprocess.run(flamegraph_command, shell=True)
     
