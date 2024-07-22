@@ -136,8 +136,6 @@ namespace json_loader {
     }
 
     loot_gen::LootGenerator GameLoader::ParseLootGenerator(const json::object& json_obj) const {
-        loot_gen::LootGenerator;
-
         json::object json_settings = json_obj.at("lootGeneratorConfig").as_object();
 
         double period = json_settings.at("period").as_double();
