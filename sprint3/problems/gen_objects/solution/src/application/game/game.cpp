@@ -77,7 +77,7 @@ namespace application {
                 Loot new_loot;
 
                 new_loot.coordinates = map_->GetRandomPosition();
-                new_loot.type_index = GetRandomInteger(map_->GetLootTypesCount());
+                new_loot.type_index = GetRandomInteger(map_->GetLootTypesCount() - 1);
 
                 loots_.push_back(new_loot);
             }
