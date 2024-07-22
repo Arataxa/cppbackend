@@ -547,12 +547,25 @@ namespace http_handler {
 
         template <typename Body, typename Allocator, typename Send>
         void HandleGetMap(http::request<Body, http::basic_fields<Allocator>>&& request, Send&& send, application::Application& application) {
+            if (http::verb::get != request.method() && request.method() != http::verb::head) {
+                BadRequestBuilder handler;
+                handler.version = request.version();
+                handler.status = http::status::method_not_allowed;
+                handler.allow = "GET, HEAD";
+                handler.cache_control = true;
+                handler.code = "invalidMethod";
+                handler.message = "Only GET, HEAD method is expected";
+
+                handler.HandleBadRequest(std::move(send));
+                return;
+            }
+
             auto target = request.target();
             std::string target_str = std::string(target);
 
-            std::string expected_prefix = "/api/v1/map/";
+            std::string expected_prefix = "/api/v1/maps/";
 
-            std::string map_id = target_str.substr(expected_prefix.size() + 1);
+            std::string map_id = target_str.substr(expected_prefix.size());
 
             const auto map = application.GetMap(map_id);
             if (!map) {
@@ -561,6 +574,11 @@ namespace http_handler {
                 handler.status = http::status::not_found;
                 handler.code = "mapNotFound";
                 handler.message = "Map not found";
+                handler.cache_control = true;
+                
+                if (request.method() == http::verb::head) {
+                    handler.is_body_need = false;
+                }
 
                 handler.HandleBadRequest(std::move(send));
                 return;
@@ -574,8 +592,14 @@ namespace http_handler {
             response.set(http::field::cache_control, "no-cache");
             response.keep_alive(request.keep_alive());
 
-            response.body() = boost::json::serialize(JsonSerializer::SerializeMap(*map, application.GetLootTypeInfo().GetInfo(map->GetName())));
-            response.content_length(response.body().size());
+            if (request.method() == http::verb::head) {
+                response.content_length(0);
+            }
+            else {
+                response.body() = boost::json::serialize(JsonSerializer::SerializeMap(*map, application.GetLootTypeInfo().GetInfo(map->GetName())));
+                response.content_length(response.body().size());
+            }
+
 
             response.prepare_payload();
             return send(std::move(response));

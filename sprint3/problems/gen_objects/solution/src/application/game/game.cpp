@@ -62,7 +62,8 @@ namespace application {
         }
 
         void GameSession::ProcessTick(int time) {
-
+            GenerateLoot(time);
+            ProcessTimeMovement(time);
         }
 
         void GameSession::GenerateLoot(int time) {
