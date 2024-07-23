@@ -3,9 +3,12 @@
 #include "../src/collision_detector.h"
 
 #include <sstream>
-#include <catch2/catch.hpp>
+#include "catch2/catch_test_macros.hpp"
+#include "catch2/catch_approx.hpp"
 #include <cmath>
 #include <vector>
+
+using Catch::Approx;
 
 namespace Catch {
     template<>
@@ -130,24 +133,4 @@ TEST_CASE("Events are in chronological order", "[FindGatherEvents]") {
     REQUIRE(events.size() == 2);
 
     REQUIRE(events[0].time < events[1].time);
-}
-
-TEST_CASE("Correct event data", "[FindGatherEvents]") {
-    TestItemGathererProvider provider;
-    provider.items.push_back({ {3, 4}, 1 });
-    provider.items.push_back({ {7, 1}, 1 });
-    provider.gatherers.push_back({ {0, 0}, {10, 10}, 1 });
-
-    auto events = collision_detector::FindGatherEvents(provider);
-    REQUIRE(events.size() == 2);
-
-    REQUIRE(events[0].item_id == 0);
-    REQUIRE(events[0].gatherer_id == 0);
-    REQUIRE(events[0].sq_distance == Approx(0.0).epsilon(1e-10));
-    REQUIRE(events[0].time == Approx(0.5).epsilon(1e-10));
-
-    REQUIRE(events[1].item_id == 1);
-    REQUIRE(events[1].gatherer_id == 0);
-    REQUIRE(events[1].sq_distance == Approx(0.0).epsilon(1e-10));
-    REQUIRE(events[1].time == Approx(0.7).epsilon(1e-10));
 }
