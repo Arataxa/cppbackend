@@ -2,6 +2,7 @@
 
 #include "../src/collision_detector.h"
 
+#include <sstream>
 #include <catch2/catch.hpp>
 #include <cmath>
 #include <vector>
