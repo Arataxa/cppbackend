@@ -44,7 +44,7 @@ namespace json_loader {
         std::vector<size_t> index_to_score_;
 
         for (const auto& loot_info : loot_type_info_) {
-            index_to_score_.push_back(loot_info.at("value").as_uint64());
+            index_to_score_.push_back(loot_info.at("value").as_int64());
         }
 
         map::Map game_map = map::MapBuilder()
