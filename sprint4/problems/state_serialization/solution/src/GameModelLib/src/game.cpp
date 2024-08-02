@@ -223,6 +223,10 @@ namespace application {
             }
         }
 
+        void Game::AddPlayer(PlayerToken token, Player* player) {
+            players_.emplace(token, player);
+        }
+
         const Game::Maps& Game::GetMaps() const noexcept {
             return maps_;
         }
@@ -283,6 +287,10 @@ namespace application {
         }
 
         const std::map<std::string, GameSession>& Game::GetSessions() const {
+            return sessions_;
+        }
+
+        std::map<std::string, GameSession>& Game::GetSessions() {
             return sessions_;
         }
 

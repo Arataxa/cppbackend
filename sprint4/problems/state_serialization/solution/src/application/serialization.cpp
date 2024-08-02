@@ -122,6 +122,12 @@ namespace application {
                 game.AddSession(session);
             }
 
+            for (auto& [map_id, session] : game.GetSessions()) {
+                for (auto& [token, player] : session.GetPlayers()) {
+                    game.AddPlayer(token, session.GetPlayer(token));
+                }
+            }
+
             return game;
         }
     }

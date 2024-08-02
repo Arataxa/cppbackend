@@ -101,6 +101,8 @@ namespace application {
 
             std::pair<PlayerToken, size_t> AddPlayer(const Map* map, std::string& name);
 
+            void AddPlayer(PlayerToken token, Player* player);
+
             const Maps& GetMaps() const noexcept;
 
             const Map* GetMap(const std::string& id) const noexcept;
@@ -112,6 +114,8 @@ namespace application {
             void ProcessTimeMovement(int time);
 
             const std::map<std::string, GameSession>& GetSessions() const;
+
+            std::map<std::string, GameSession>& GetSessions();
 
             bool IsSpawnRandom() const;
 
