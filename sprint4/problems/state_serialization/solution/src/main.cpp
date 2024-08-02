@@ -42,7 +42,9 @@ struct Args {
         ("tick-period,t", po::value<int>()->value_name("milliseconds"), "set tick period")
         ("config-file,c", po::value<std::string>()->value_name("file"), "set config file path")
         ("www-root,w", po::value<std::string>()->value_name("dir"), "set static files root")
-        ("randomize-spawn-points", po::bool_switch(&args.randomize_spawn_points)->default_value(false), "spawn dogs at random positions");
+        ("randomize-spawn-points", po::bool_switch(&args.randomize_spawn_points)->default_value(false), "spawn dogs at random positions")
+        ("state-file", po::value<std::string>()->value_name("file"), "set state file path")
+        ("save-state-period", po::value<int>()->value_name("milliseconds"), "set save state period");
 
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -183,7 +185,13 @@ int main(int argc, const char* argv[]) {
                 LoadState(game, args->state_file);
             }
 
-            application::Application application(std::move(game), std::move(game_loader.GetLootTypeInfo()), args->state_file);
+            int save_period = -1;
+
+            if (args->save_state_period.has_value()) {
+                save_period = args->save_state_period.value();
+            }
+
+            application::Application application(std::move(game), std::move(game_loader.GetLootTypeInfo()), args->state_file, save_period);
 
             // 2. Инициализируем io_context
             const unsigned num_threads = std::thread::hardware_concurrency();
@@ -206,22 +214,13 @@ int main(int argc, const char* argv[]) {
             auto api_strand = net::make_strand(ioc);
 
             // Настраиваем вызов метода Application::Tick каждые tick_period миллисекунд внутри strand
-            auto last_save_time = std::chrono::steady_clock::now();
-            const int save_state_period = args->save_state_period.value();
 
             if (args->tick_period) {
                 auto ticker = std::make_shared<Ticker>(
                     api_strand,
                     std::chrono::milliseconds(args->tick_period.value()),
-                    [&application, &last_save_time, save_state_period](std::chrono::milliseconds delta) {
+                    [&application](std::chrono::milliseconds delta) {
                         application.ProcessTime(delta.count() / 1000.0);
-
-                        auto now = std::chrono::steady_clock::now();
-                        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - last_save_time).count();
-                        if (elapsed >= save_state_period) {
-                            application.SaveGame();
-                            last_save_time = now;
-                        }
                     }
                 );
                 ticker->Start();

@@ -16,7 +16,7 @@ namespace application {
 
 	class Application {
 	public:
-		explicit Application(Game&& game, loot_type_info::LootTypeInfo&& type_info, const std::string& state_file);
+		explicit Application(Game&& game, loot_type_info::LootTypeInfo&& type_info, const std::string& state_file, int save_state_period);
 
 		std::pair<PlayerToken, size_t> JoinGame(const Map* map, std::string& name);
 
@@ -28,22 +28,15 @@ namespace application {
 
 		void ProcessTime(int time);
 
+		void SaveGame();
+
 		const loot_type_info::LootTypeInfo& GetLootTypeInfo() const;
-
-		void SaveGame() {
-			if (state_file_.empty()) {
-				return;
-			}
-
-			std::ofstream ofs(state_file_);
-            serialization::GameSerialization game_ser = serialization::GameSerialization::FromGame(game_);
-			boost::archive::text_oarchive oa(ofs);
-			oa << game_ser;
-		}
 
 	private:
 		Game game_;
 		loot_type_info::LootTypeInfo loot_type_info_;
 		std::string state_file_;
+		int save_state_period_;
+		int accumulated_time_;
 	};
 } // namespace application
