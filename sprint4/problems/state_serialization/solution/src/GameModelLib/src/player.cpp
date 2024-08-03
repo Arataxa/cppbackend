@@ -60,6 +60,10 @@ namespace application {
                 return &session_;
             }
 
+            const GameSession* Player::GetSession() const {
+                return &session_;
+            }
+
             Coordinates Player::GetPosition() const {
                 return dog_.GetPosition();
             }

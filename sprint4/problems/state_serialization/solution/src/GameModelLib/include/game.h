@@ -47,7 +47,7 @@ namespace application {
 
             std::pair<PlayerToken, size_t> AddPlayer(std::string& name);
 
-            void AddPlayer(PlayerToken token, Player player);
+            void AddPlayer(PlayerToken token, const Player& player);
 
             Player* GetPlayer(PlayerToken token);
 
@@ -101,7 +101,7 @@ namespace application {
 
             std::pair<PlayerToken, size_t> AddPlayer(const Map* map, std::string& name);
 
-            void AddPlayer(PlayerToken token, Player* player);
+            void AddPlayer(const std::string& map_id, PlayerToken token, const Player& player);
 
             const Maps& GetMaps() const noexcept;
 
@@ -120,6 +120,8 @@ namespace application {
             bool IsSpawnRandom() const;
 
             loot_gen::LootGenerator GetLootGenerator() const;
+
+            GameSession& GetSession(const std::string& map_id);
 
         private:
             using MapIdToIndex = std::unordered_map<std::string, size_t>;

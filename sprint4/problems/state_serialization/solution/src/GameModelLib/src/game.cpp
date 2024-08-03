@@ -44,8 +44,8 @@ namespace application {
             return { token, it.first->second.GetId() };
         }
 
-        void GameSession::AddPlayer(PlayerToken token, Player player) {
-            players_.emplace(std::move(token), std::move(player));
+        void GameSession::AddPlayer(PlayerToken token, const Player& player) {
+            players_.emplace(std::move(token), player);
         }
 
         Player* GameSession::GetPlayer(PlayerToken token) {
@@ -223,8 +223,12 @@ namespace application {
             }
         }
 
-        void Game::AddPlayer(PlayerToken token, Player* player) {
-            players_.emplace(token, player);
+        void Game::AddPlayer(const std::string& map_id, PlayerToken token, const Player& player) {
+            auto it = sessions_.find(map_id);
+
+            it->second.AddPlayer(token, player);
+
+            players_.emplace(token, it->second.GetPlayer(token));
         }
 
         const Game::Maps& Game::GetMaps() const noexcept {
@@ -300,6 +304,13 @@ namespace application {
 
         loot_gen::LootGenerator Game::GetLootGenerator() const {
             return loot_generator_;
+        }
+
+        GameSession& Game::GetSession(const std::string& map_id) {
+            auto it = sessions_.find(map_id);
+            if (it != sessions_.end()) {
+                return it->second;
+            }
         }
 
     } // namespace game

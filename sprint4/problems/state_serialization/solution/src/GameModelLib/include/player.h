@@ -57,6 +57,8 @@ namespace application {
 
                 GameSession* GetSession();
 
+                const GameSession* GetSession() const;
+
                 Coordinates GetPosition() const;
 
                 Speed GetSpeed() const;
@@ -90,7 +92,7 @@ namespace application {
 
                 Dog dog_;
                 GameSession& session_;
-                size_t score_;
+                size_t score_ = 0;
 
                 std::vector<Loot> loots_;
             };
