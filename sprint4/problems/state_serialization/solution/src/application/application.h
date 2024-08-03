@@ -6,6 +6,7 @@
 #include "serialization.h"
 
 #include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -30,6 +31,26 @@ namespace application {
 
 		void SaveGame();
 
+		void LoadGame() {
+			if (state_file_.empty()) {
+				return;
+			}
+
+			std::ifstream ifs(state_file_);
+
+			if (!ifs) {
+				return;
+			}
+
+			boost::archive::text_iarchive ia(ifs);
+			application::serialization::GameSerialization game_ser;
+			ia >> game_ser;
+
+			game_ser.ToGame(game_);
+
+			ifs.close();
+		}
+
 		const loot_type_info::LootTypeInfo& GetLootTypeInfo() const;
 
 	private:
@@ -37,6 +58,6 @@ namespace application {
 		loot_type_info::LootTypeInfo loot_type_info_;
 		std::string state_file_;
 		int save_state_period_;
-		int accumulated_time_;
+		int accumulated_time_ = 0;
 	};
 } // namespace application

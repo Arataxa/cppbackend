@@ -43,6 +43,8 @@ void Application::SaveGame() {
 	serialization::GameSerialization game_ser = serialization::GameSerialization::FromGame(game_);
 	boost::archive::text_oarchive oa(ofs);
 	oa << game_ser;
+
+	ofs.close();
 }
 
 const loot_type_info::LootTypeInfo& Application::GetLootTypeInfo() const {

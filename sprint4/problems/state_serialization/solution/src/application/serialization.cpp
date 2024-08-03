@@ -95,9 +95,9 @@ namespace application {
             loot_generator.SetTimeWithoutLoot(time_without_loot_);
             GameSession game_session(map, is_random_spawn, loot_generator);
 
-            for (const auto& [token_str, player_ser] : players_) {
+            /*for (const auto& [token_str, player_ser] : players_) {
                 game_session.AddPlayer(PlayerToken::FromString(token_str), player_ser.ToPlayer(game_session));
-            }
+            }*/
 
             for (const auto& loot : loots_) {
                 game_session.AddLoot(loot.ToLoot());
@@ -120,11 +120,9 @@ namespace application {
             for (auto& session_ser : sessions_) {
                 auto session = session_ser.ToGameSession(*game.GetMap(session_ser.map_id), game.IsSpawnRandom(), game.GetLootGenerator());
                 game.AddSession(session);
-            }
 
-            for (auto& [map_id, session] : game.GetSessions()) {
-                for (auto& [token, player] : session.GetPlayers()) {
-                    game.AddPlayer(token, session.GetPlayer(token));
+                for (auto& [token_str, player_ser] : session_ser.players_) {
+                    game.AddPlayer(session_ser.map_id, PlayerToken::FromString(token_str), player_ser.ToPlayer(game.GetSession(session_ser.map_id)));
                 }
             }
 

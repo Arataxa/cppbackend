@@ -11,8 +11,6 @@
 #include <boost/json/src.hpp>
 #include <boost/asio.hpp>
 
-#include <boost/archive/text_iarchive.hpp>
-
 #include <fstream>
 #include <optional>
 #include <thread>
@@ -133,21 +131,9 @@ namespace {
 
 }
 
-void LoadState(application::game::Game& game, const std::string& state_file) {
+void TryLoadState(application::Application& application) {
     try {
-        std::ifstream ifs(state_file);
-
-        if (!ifs) {
-            return;
-        }
-
-        boost::archive::text_iarchive ia(ifs);
-        application::serialization::GameSerialization game_ser;
-        ia >> game_ser;
-
-        game_ser.ToGame(game);
-
-        ifs.close();
+        application.LoadGame();
     }
     catch (const std::exception& e) {
         boost::json::value data;
@@ -181,10 +167,6 @@ int main(int argc, const char* argv[]) {
 
             auto game = game_loader.Load(args->config_file);
 
-            if (!args->state_file.empty()) {
-                LoadState(game, args->state_file);
-            }
-
             int save_period = -1;
 
             if (args->save_state_period.has_value()) {
@@ -192,6 +174,8 @@ int main(int argc, const char* argv[]) {
             }
 
             application::Application application(std::move(game), std::move(game_loader.GetLootTypeInfo()), args->state_file, save_period);
+
+            TryLoadState(application);
 
             // 2. Инициализируем io_context
             const unsigned num_threads = std::thread::hardware_concurrency();
@@ -249,6 +233,7 @@ int main(int argc, const char* argv[]) {
                 });
 
             application.SaveGame();
+            BOOST_LOG_TRIVIAL(info) << "state saved end";
         }
         catch (const std::exception& ex) {
             boost::json::value data{

@@ -7,6 +7,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/unordered_map.hpp>
 
+#include "iostream"
+
 namespace application {
 	using namespace game;
 	using namespace map;
@@ -86,9 +88,9 @@ namespace application {
             }
 
             std::string map_id;
+            std::unordered_map<std::string, PlayerSerialization> players_;
         private:
             std::chrono::milliseconds time_without_loot_;
-            std::unordered_map<std::string, PlayerSerialization> players_;
             std::vector<LootSerialization> loots_;
 
         };
