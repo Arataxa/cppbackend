@@ -9,5 +9,7 @@ conan_basic_setup(TARGETS)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(book_manager src/main.cpp)
-target_link_libraries(book_manager CONAN_PKG::boost CONAN_PKG::libpqxx) 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_executable(book_manager main.cpp)
+target_link_libraries(book_manager CONAN_PKG::boost CONAN_PKG::libpqxx)
