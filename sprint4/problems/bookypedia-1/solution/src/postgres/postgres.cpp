@@ -23,12 +23,14 @@ std::vector<domain::Author> AuthorRepositoryImpl::GetAll() {
     auto result = txn.exec("SELECT id, name FROM authors ORDER BY name");
 
     std::vector<domain::Author> authors;
-    for (const auto& row : result) {
+    for (size_t i = 0; i < result.size(); ++i) {
+        const auto& row = result[i];
         authors.push_back({
-            domain::AuthorId{row["id"].as<std::string>()},
+            domain::AuthorId::FromString(row["id"].as<std::string>()),
             row["name"].as<std::string>()
             });
     }
+
     return authors;
 }
 
@@ -45,10 +47,11 @@ std::vector<domain::Book> BookRepositoryImpl::GetAll() {
     auto result = txn.exec("SELECT id, title, author_id, publication_year FROM books ORDER BY title");
 
     std::vector<domain::Book> books;
-    for (const auto& row : result) {
+    for (size_t i = 0; i < result.size(); ++i) {
+        const auto& row = result[i];
         books.push_back({
-            domain::BookId{row["id"].as<std::string>()},
-             domain::AuthorId{row["author_id"].as<std::string>()},
+            domain::BookId::FromString(row["id"].as<std::string>()),
+            domain::AuthorId::FromString(row["author_id"].as<std::string>()),
             row["title"].as<std::string>(),
             row["publication_year"].as<int>()
             });
@@ -63,10 +66,11 @@ std::vector<domain::Book> BookRepositoryImpl::GetAuthorBooks(const domain::Autho
         author_id.ToString());
 
     std::vector<domain::Book> books;
-    for (const auto& row : result) {
+    for (size_t i = 0; i < result.size(); ++i) {
+        const auto& row = result[i];
         books.push_back({
-            domain::BookId{row["id"].as<std::string>()},
-            domain::AuthorId{row["author_id"].as<std::string>()},
+            domain::BookId::FromString(row["id"].as<std::string>()),
+            domain::AuthorId::FromString(row["author_id"].as<std::string>()),
             row["title"].as<std::string>(),
             row["publication_year"].as<int>()
             });
