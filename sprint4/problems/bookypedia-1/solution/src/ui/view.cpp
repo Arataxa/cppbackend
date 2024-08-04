@@ -55,6 +55,11 @@ bool View::AddAuthor(std::istream& cmd_input) const {
     try {
         std::string name;
         std::getline(cmd_input, name);
+
+        if (name.empty()) {
+            throw std::runtime_error("Empty author name");
+        }
+
         boost::algorithm::trim(name);
         use_cases_.AddAuthor(std::move(name));
     } catch (const std::exception&) {

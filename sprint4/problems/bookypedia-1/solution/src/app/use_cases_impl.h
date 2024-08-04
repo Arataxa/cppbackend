@@ -4,6 +4,8 @@
 #include "../domain/book_fwd.h"
 #include "use_cases.h"
 
+#include <stdexcept>
+
 namespace app {
 
 class UseCasesImpl : public UseCases {
