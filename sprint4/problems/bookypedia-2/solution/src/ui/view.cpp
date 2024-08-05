@@ -194,6 +194,7 @@ bool View::EditBook(std::istream& cmd_input) const {
             output_ << "Enter new title or empty line to use the current one (" << book.title << "):" << std::endl;
             std::string line;
             std::getline(input_, line);
+            boost::algorithm::trim(line);
 
             if (!line.empty()) {
                 new_title = line;
@@ -203,6 +204,7 @@ bool View::EditBook(std::istream& cmd_input) const {
             output_ << "Enter publication year or empty line to use the current one (" << book.publication_year << "):" << std::endl;
             std::string line;
             std::getline(input_, line);
+            boost::algorithm::trim(line);
 
             try {
                 if (!line.empty()) {
@@ -227,12 +229,18 @@ bool View::EditBook(std::istream& cmd_input) const {
             }
             output_ << "):" << std::endl;
 
-            std::string line;
-            std::getline(input_, line);
+            std::string tags_input;
+            std::getline(input_, tags_input);
 
-            boost::split(new_tags, line, boost::is_any_of(","), boost::token_compress_on);
-            for (auto& tag : new_tags) {
+            std::istringstream tags_stream(tags_input);
+            std::string tag;
+
+            std::set<std::string> tags_set;
+            while (std::getline(tags_stream, tag, ',')) {
                 boost::algorithm::trim(tag);
+                if (!tag.empty()) {
+                    tags_set.insert(tag);
+                }
             }
         }
 
