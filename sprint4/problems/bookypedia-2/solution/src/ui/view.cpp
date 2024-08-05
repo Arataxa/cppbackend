@@ -417,6 +417,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     cmd_input >> params.publication_year;
     std::getline(cmd_input, params.title);
     boost::algorithm::trim(params.title);
+    cmd_input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     // get author
     output_ << "Enter author name or empty line to select from list:" << std::endl;
@@ -497,12 +498,12 @@ std::optional<int> View::SelectBook(std::vector<detail::BookInfo>& books) const 
         book_idx = std::stoi(str);
     }
     catch (std::exception const&) {
-        throw std::runtime_error("Invalid author num");
+        throw std::runtime_error("Invalid book num 1");
     }
 
     --book_idx;
     if (book_idx < 0 or book_idx >= books.size()) {
-        throw std::runtime_error("Invalid author num");
+        throw std::runtime_error("Invalid book num 2");
     }
 
     return book_idx;
@@ -527,12 +528,12 @@ std::optional<std::string> View::SelectAuthor(std::vector<detail::AuthorInfo>& a
     try {
         author_idx = std::stoi(str);
     } catch (std::exception const&) {
-        throw std::runtime_error("Invalid author num");
+        throw std::runtime_error("Invalid author num 1: " + str);
     }
 
     --author_idx;
     if (author_idx < 0 or author_idx >= authors.size()) {
-        throw std::runtime_error("Invalid author num");
+        throw std::runtime_error("Invalid author num 2");
     }
 
     return authors[author_idx].id;
