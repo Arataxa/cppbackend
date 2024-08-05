@@ -126,7 +126,7 @@ bool View::DeleteBook(std::istream& cmd_input) const {
                 book_idx = SelectBook(finding_books);
 
                 if (!book_idx.has_value()) {
-                    throw std::runtime_error("Wrong option");
+                    return true;
                 }
 
                 deleted_book_id = finding_books[book_idx.value()].uid;
@@ -182,7 +182,7 @@ bool View::EditBook(std::istream& cmd_input) const {
                     throw std::runtime_error("Wrong option selected 2");
                 }
 
-                book = books[book_idx.value()];
+                book = finding_books[book_idx.value()];
             }
         }
 
@@ -231,6 +231,9 @@ bool View::EditBook(std::istream& cmd_input) const {
             std::getline(input_, line);
 
             boost::split(new_tags, line, boost::is_any_of(","), boost::token_compress_on);
+            for (auto& tag : new_tags) {
+                boost::algorithm::trim(tag);
+            }
         }
 
         use_cases_.EditBook(book.uid, new_title, new_publication_year, new_tags);
