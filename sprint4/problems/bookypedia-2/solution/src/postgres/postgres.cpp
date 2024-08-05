@@ -28,10 +28,24 @@ void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
             WHERE book_id IN (
                 SELECT id FROM books WHERE author_id = $1
             );
+            )", author_id.ToString()
+        );
+
+        txn.exec_params(
+            R"(
             DELETE FROM books WHERE author_id = $1;
+            )", author_id.ToString()
+        );
+
+        auto result = txn.exec_params(
+            R"(
             DELETE FROM authors WHERE id = $1;
             )", author_id.ToString()
         );
+
+        if (result.affected_rows() == 0) {
+            throw std::runtime_error("Author not found");
+        }
 
         txn.commit();
     }
