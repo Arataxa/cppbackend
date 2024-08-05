@@ -76,7 +76,7 @@ bool View::AddBook(std::istream& cmd_input) const {
     try {
         if (auto params = GetBookParams(cmd_input)) {
             if (!params.has_value()) {
-                return false;
+                throw std::runtime_error("Error");
             }
 
             auto params_value = params.value();
@@ -135,7 +135,7 @@ bool View::DeleteBook(std::istream& cmd_input) const {
         use_cases_.DeleteBook(deleted_book_id);
     }
     catch (const std::exception& e) {
-        output_ << "Failed to delete book" << e.what() << std::endl;
+        output_ << "Failed to delete book" << std::endl;
     }
 
     return true;
@@ -236,7 +236,7 @@ bool View::EditBook(std::istream& cmd_input) const {
         
     }
     catch (const std::exception& e) {
-        output_ << "Book not found: " << e.what() << std::endl;
+        output_ << "Book not found: " << std::endl;
     }
 
     return true;
@@ -290,7 +290,7 @@ bool View::DeleteAuthor(std::istream& cmd_input) const {
         use_cases_.DeleteAuthor(author_id.value());
     }
     catch (const std::exception& e) {
-        output_ << "Failed to delete author" << e.what() << std::endl;
+        output_ << "Failed to delete author" << std::endl;
     }
 
     return true;
@@ -364,6 +364,12 @@ bool View::ShowBook(std::istream& cmd_input) const {
 
                     book = books[book_idx.value()];
                 }
+                else {
+                    book = books.front();
+                }
+            }
+            else {
+                throw std::logic_error("book not found");
             }
         }
         
@@ -371,11 +377,16 @@ bool View::ShowBook(std::istream& cmd_input) const {
             << "Author: " << book.author_name << std::endl
             << "Publication year: " << book.publication_year << std::endl;
 
-        if (book.tags.size() != 0) {
+        auto tags = book.tags;
+        if (tags.size() != 0) {
             output_ << "Tags: ";
+
+            if (tags.size() > 1) {
+                std::sort(tags.begin(), tags.end());
+            }
             
             bool is_first = true;
-            for (const auto& tag : book.tags) {
+            for (const auto& tag : tags) {
                 if (is_first) {
                     is_first = false;
                 }
@@ -429,8 +440,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     if (author_name.empty()) {
         author_id = SelectAuthor(authors);
         if (!author_id) {
-            output_ << "Failed to add book: No author selected." << std::endl;
-            return std::nullopt;
+            throw std::runtime_error("Failed to add book: No author selected.");
         }
     }
     else {
@@ -441,8 +451,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
             std::string response;
             std::getline(input_, response);
             if (response != "y" && response != "Y") {
-                output_ << "Failed to add book." << std::endl;
-                return std::nullopt;
+                throw std::runtime_error("Failed to add book.");
             }
             try {
                 use_cases_.AddAuthor(author_name);
@@ -454,8 +463,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
                 }
             }
             catch (const std::exception& e) {
-                output_ << "Failed to add author: " << e.what() << std::endl;
-                return std::nullopt;
+                throw std::runtime_error(e.what());
             }
         }
     }
@@ -464,21 +472,18 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     std::string tags_input;
     std::getline(input_, tags_input);
 
-    std::istringstream tags_stream(tags_input);
     std::string tag;
-    std::set<std::string> tags_set;
-    while (std::getline(tags_stream, tag, ',')) {
+    std::vector<std::string> tags_vector;
+    boost::split(tags_vector, tags_input, boost::is_any_of(","));
+    for (auto& tag : tags_vector) {
         boost::algorithm::trim(tag);
-        if (!tag.empty()) {
-            tags_set.insert(tag);
-        }
     }
 
     if (not author_id.has_value())
         return std::nullopt;
     else {
         params.author_id = author_id.value();
-        params.tags.assign(tags_set.begin(), tags_set.end());
+        params.tags = tags_vector;
         return params;
     }
 }
