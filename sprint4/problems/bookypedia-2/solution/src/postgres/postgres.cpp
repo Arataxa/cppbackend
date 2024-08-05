@@ -51,7 +51,7 @@ void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
     }
     catch (const std::exception& e) {
         txn.abort();
-        throw std::runtime_error("Failed to delete author: " + std::string{ e.what() });
+        throw std::runtime_error("Failed to delete author sql: " + std::string{ e.what() });
     }
 }
 
@@ -72,7 +72,7 @@ void AuthorRepositoryImpl::EditName(const domain::AuthorId& author_id, const std
     }
     catch (const std::exception& e) {
         txn.abort();
-        throw std::runtime_error("Failed to edit author: " + std::string{ e.what() });
+        throw std::runtime_error("Failed to edit author sql: " + std::string{ e.what() });
     }
 }
 
@@ -113,6 +113,7 @@ void BookRepositoryImpl::Save(const domain::Book& book) {
     }
     catch (const std::exception& e) {
         work.abort();
+        throw std::runtime_error("Failed to add book sql: " + std::string{ e.what() });
         throw;
     }
 }

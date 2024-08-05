@@ -82,8 +82,8 @@ bool View::AddBook(std::istream& cmd_input) const {
             auto params_value = params.value();
             use_cases_.AddBook(params_value.author_id, params_value.title, params_value.publication_year, params_value.tags);
         }
-    } catch (const std::exception&) {
-        output_ << "Failed to add book"sv << std::endl;
+    } catch (const std::exception& e) {
+        output_ << "Failed to add book: "sv << e.what() << std::endl;
     }
     return true;
 }
@@ -134,8 +134,8 @@ bool View::DeleteBook(std::istream& cmd_input) const {
 
         use_cases_.DeleteBook(deleted_book_id);
     }
-    catch (const std::exception&) {
-        output_ << "Failed to delete book" << std::endl;
+    catch (const std::exception& e) {
+        output_ << "Failed to delete book" << e.what() << std::endl;
     }
 
     return true;
@@ -155,7 +155,7 @@ bool View::EditBook(std::istream& cmd_input) const {
             book_idx = SelectBook(books);
 
             if (!book_idx.has_value()) {
-                throw std::runtime_error("");
+                throw std::runtime_error("Wrong option selected 1");
             }
 
             book = books[book_idx.value()];
@@ -168,7 +168,7 @@ bool View::EditBook(std::istream& cmd_input) const {
                 });
 
             if (finding_books.size() == 0) {
-                throw std::runtime_error("");
+                throw std::runtime_error("Book not found");
             }
 
             if (finding_books.size() == 1) {
@@ -178,7 +178,7 @@ bool View::EditBook(std::istream& cmd_input) const {
                 book_idx = SelectBook(finding_books);
 
                 if (!book_idx.has_value()) {
-                    throw std::runtime_error("");
+                    throw std::runtime_error("Wrong option selected 2");
                 }
 
                 book = books[book_idx.value()];
@@ -235,8 +235,8 @@ bool View::EditBook(std::istream& cmd_input) const {
         use_cases_.EditBook(book.uid, new_title, new_publication_year, new_tags);
         
     }
-    catch (const std::exception&) {
-        output_ << "Book not found" << std::endl;
+    catch (const std::exception& e) {
+        output_ << "Book not found: " << e.what() << std::endl;
     }
 
     return true;
@@ -284,13 +284,13 @@ bool View::DeleteAuthor(std::istream& cmd_input) const {
         }
 
         if (!author_id.has_value()) {
-            throw std::runtime_error("");
+            throw std::runtime_error("Fail");
         }
 
         use_cases_.DeleteAuthor(author_id.value());
     }
-    catch (const std::exception&) {
-        output_ << "Failed to delete author" << std::endl;
+    catch (const std::exception& e) {
+        output_ << "Failed to delete author" << e.what() << std::endl;
     }
 
     return true;
