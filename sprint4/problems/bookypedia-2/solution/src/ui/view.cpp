@@ -436,9 +436,6 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     auto authors = GetAuthors();
     if (author_name.empty()) {
         author_id = SelectAuthor(authors);
-        if (!author_id) {
-            return std::nullopt;
-        }
     }
     else {
         author_id = GetAuthorIdByName(author_name, authors);
@@ -448,7 +445,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
             std::string response;
             std::getline(input_, response);
             if (response != "y" && response != "Y") {
-                return std::nullopt;
+                throw std::runtime_error("Failed to add book.");
             }
             try {
                 use_cases_.AddAuthor(author_name);
@@ -480,6 +477,10 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
         }
     }
 
+    if (!author_id) {
+        throw std::runtime_error("Failed to add book: No author selected.");
+    }
+
     if (not author_id.has_value())
         return std::nullopt;
     else {
@@ -494,8 +495,10 @@ std::optional<int> View::SelectBook(std::vector<detail::BookInfo>& books) const 
     output_ << "Enter the book # or empty line to cancel:" << std::endl;
 
     std::string str;
-    if (!std::getline(input_, str) || str.empty()) {
-        throw std::runtime_error("Invalid option"s);
+    std::getline(input_, str);
+    boost::algorithm::trim(str);
+    if (str.empty()) {
+        return std::nullopt;
     }
 
     int book_idx;
@@ -520,7 +523,7 @@ std::optional<std::string> View::SelectAuthor() const {
 }
 
 std::optional<std::string> View::SelectAuthor(std::vector<detail::AuthorInfo>& authors) const {
-    //output_ << "Select author:" << std::endl;
+    output_ << "Select author:" << std::endl;
     PrintVector(output_, authors);
     output_ << "Enter author # or empty line to cancel" << std::endl;
 
