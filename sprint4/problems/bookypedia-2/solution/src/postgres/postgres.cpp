@@ -8,7 +8,7 @@ using namespace std::literals;
 using pqxx::operator"" _zv;
 
 void AuthorRepositoryImpl::Save(const domain::Author& author) {
-    pqxx::work work{connection_};
+    pqxx::work work{connection_, "serializable" };
     work.exec_params(
         R"(
 INSERT INTO authors (id, name) VALUES ($1, $2)
@@ -19,7 +19,7 @@ ON CONFLICT (id) DO UPDATE SET name=$2;
 }
 
 void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
 
     try {
         txn.exec_params(
@@ -56,7 +56,7 @@ void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
 }
 
 void AuthorRepositoryImpl::EditName(const domain::AuthorId& author_id, const std::string& new_name) {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
 
     try {
         auto result = txn.exec_params(
@@ -77,7 +77,7 @@ void AuthorRepositoryImpl::EditName(const domain::AuthorId& author_id, const std
 }
 
 std::vector<domain::Author> AuthorRepositoryImpl::GetAll() {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec("SELECT id, name FROM authors ORDER BY name");
 
     std::vector<domain::Author> authors;
@@ -93,7 +93,7 @@ std::vector<domain::Author> AuthorRepositoryImpl::GetAll() {
 }
 
 void BookRepositoryImpl::Save(const domain::Book& book) {
-    pqxx::work work{ connection_ };
+    pqxx::work work{ connection_ , "serializable" };
     try {
         work.exec_params(
             "INSERT INTO books (id, title, author_id, publication_year) VALUES ($1, $2, $3, $4)",
@@ -119,7 +119,7 @@ void BookRepositoryImpl::Save(const domain::Book& book) {
 }
 
 std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec(
         R"(
         SELECT b.id, b.title, b.author_id, b.publication_year, a.name as author_name
@@ -164,7 +164,7 @@ std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
 
 void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::optional<std::string>& new_title,
     const std::optional<int>& new_pub_year, const std::vector<std::string>& new_tags) {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
 
     try {
         if (new_title.has_value()) {
@@ -202,7 +202,7 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
 }
 
 void BookRepositoryImpl::Delete(const domain::BookId& book_id) {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
 
     try {
         txn.exec_params(
@@ -224,7 +224,7 @@ void BookRepositoryImpl::Delete(const domain::BookId& book_id) {
 }
 
 std::vector<domain::Book> BookRepositoryImpl::GetAuthorBooks(const domain::AuthorId& author_id) {
-    pqxx::work txn{ connection_ };
+    pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec_params("SELECT id, title, author_id, publication_year FROM books WHERE author_id = $1 ORDER BY publication_year, title",
         author_id.ToString());
 
