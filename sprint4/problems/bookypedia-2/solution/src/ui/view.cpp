@@ -417,12 +417,11 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     cmd_input >> params.publication_year;
     std::getline(cmd_input, params.title);
     boost::algorithm::trim(params.title);
-    cmd_input.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
     // get author
     output_ << "Enter author name or empty line to select from list:" << std::endl;
     std::string author_name;
-    std::getline(cmd_input, author_name);
+    std::getline(input_, author_name);
     boost::algorithm::trim(author_name);
     
     std::optional<std::string> author_id;
