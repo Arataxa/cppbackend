@@ -437,7 +437,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
     if (author_name.empty()) {
         author_id = SelectAuthor(authors);
         if (!author_id) {
-            throw std::runtime_error("Failed to add book: No author selected.");
+            return std::nullopt;
         }
     }
     else {
@@ -448,7 +448,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
             std::string response;
             std::getline(input_, response);
             if (response != "y" && response != "Y") {
-                throw std::runtime_error("Failed to add book.");
+                return std::nullopt;
             }
             try {
                 use_cases_.AddAuthor(author_name);
@@ -520,7 +520,7 @@ std::optional<std::string> View::SelectAuthor() const {
 }
 
 std::optional<std::string> View::SelectAuthor(std::vector<detail::AuthorInfo>& authors) const {
-    output_ << "Select author:" << std::endl;
+    //output_ << "Select author:" << std::endl;
     PrintVector(output_, authors);
     output_ << "Enter author # or empty line to cancel" << std::endl;
 
