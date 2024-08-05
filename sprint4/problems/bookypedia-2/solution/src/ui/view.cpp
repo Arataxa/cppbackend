@@ -192,7 +192,7 @@ bool View::EditBook(std::istream& cmd_input) const {
         {
             output_ << "Enter new title or empty line to use the current one (" << book.title << "):" << std::endl;
             std::string line;
-            std::getline(cmd_input, line);
+            std::getline(input_, line);
 
             if (!line.empty()) {
                 new_title = line;
@@ -201,7 +201,7 @@ bool View::EditBook(std::istream& cmd_input) const {
         {
             output_ << "Enter publication year or empty line to use the current one (" << book.publication_year << "):" << std::endl;
             std::string line;
-            std::getline(cmd_input, line);
+            std::getline(input_, line);
 
             try {
                 if (!line.empty()) {
@@ -227,7 +227,7 @@ bool View::EditBook(std::istream& cmd_input) const {
             output_ << "):" << std::endl;
 
             std::string line;
-            std::getline(cmd_input, line);
+            std::getline(input_, line);
 
             boost::split(new_tags, line, boost::is_any_of(","), boost::token_compress_on);
         }
@@ -319,7 +319,7 @@ bool View::EditAuthor(std::istream& cmd_input) const {
         output_ << "Enter new name:" << std::endl;
 
         std::string new_name;
-        std::getline(cmd_input, new_name);
+        std::getline(input_, new_name);
         boost::algorithm::trim(new_name);
 
         use_cases_.EditAuthorName(author_id.value(), new_name);
@@ -439,7 +439,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
         if (!author_id.has_value()) {
             output_ << "No author found. Do you want to add " << author_name << " (y/n)?" << std::endl;
             std::string response;
-            std::getline(cmd_input, response);
+            std::getline(input_, response);
             if (response != "y" && response != "Y") {
                 output_ << "Failed to add book." << std::endl;
                 return std::nullopt;
@@ -462,7 +462,7 @@ std::optional<detail::AddBookParams> View::GetBookParams(std::istream& cmd_input
 
     output_ << "Enter tags (comma separated):" << std::endl;
     std::string tags_input;
-    std::getline(cmd_input, tags_input);
+    std::getline(input_, tags_input);
 
     std::istringstream tags_stream(tags_input);
     std::string tag;
