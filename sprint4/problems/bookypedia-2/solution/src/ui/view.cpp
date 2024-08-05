@@ -152,7 +152,13 @@ bool View::EditBook(std::istream& cmd_input) const {
         auto books = GetBooks();
         std::optional<int> book_idx;
 
-        if (title.empty()) {
+        for (auto& book_info : books) {
+            if (book_info.title == title) {
+                book = book_info;
+            }
+        }
+
+        /*if (title.empty()) {
             book_idx = SelectBook(books);
 
             if (!book_idx.has_value()) {
@@ -184,7 +190,7 @@ bool View::EditBook(std::istream& cmd_input) const {
 
                 book = finding_books[book_idx.value()];
             }
-        }
+        }*/
 
         std::optional<std::string> new_title;
         std::optional<int> new_publication_year;
