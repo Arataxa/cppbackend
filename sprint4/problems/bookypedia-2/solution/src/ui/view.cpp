@@ -102,7 +102,7 @@ bool View::DeleteBook(std::istream& cmd_input) const {
             book_idx = SelectBook(books);
 
             if (!book_idx.has_value()) {
-                throw std::runtime_error("Book not exists");
+                return true;
             }
 
             deleted_book_id = books[book_idx.value()].uid;
@@ -115,7 +115,8 @@ bool View::DeleteBook(std::istream& cmd_input) const {
                 });
 
             if (finding_books.size() == 0) {
-                throw std::runtime_error("Book not exists");
+                output_ << "Book not found" << std::endl;
+                return true;
             }
 
             if (finding_books.size() == 1) {
@@ -524,7 +525,9 @@ std::optional<std::string> View::SelectAuthor(std::vector<detail::AuthorInfo>& a
     output_ << "Enter author # or empty line to cancel" << std::endl;
 
     std::string str;
-    if (!std::getline(input_, str) || str.empty()) {
+    std::getline(input_, str);
+    boost::algorithm::trim(str);
+    if (str.empty()) {
         return std::nullopt;
     }
 
