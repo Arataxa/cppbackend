@@ -137,7 +137,7 @@ std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
 
         auto tags_result = txn.exec_params(
             R"(
-            SELECT tag FROM book_tags WHERE book_id = $1
+            SELECT tag FROM book_tags WHERE book_id = $1 ORDER BY tag
             )", book_id.ToString()
         );
 
