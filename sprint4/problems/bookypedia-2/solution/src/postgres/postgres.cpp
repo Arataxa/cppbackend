@@ -55,8 +55,6 @@ void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
 }
 
 void AuthorRepositoryImpl::EditName(const domain::AuthorId& author_id, const std::string& new_name) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
 
     try {
@@ -78,8 +76,6 @@ void AuthorRepositoryImpl::EditName(const domain::AuthorId& author_id, const std
 }
 
 std::vector<domain::Author> AuthorRepositoryImpl::GetAll() {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec("SELECT id, name FROM authors ORDER BY name");
 
@@ -96,8 +92,6 @@ std::vector<domain::Author> AuthorRepositoryImpl::GetAll() {
 }
 
 void BookRepositoryImpl::Save(const domain::Book& book) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work work{ connection_ , "serializable" };
     try {
         work.exec_params(
@@ -124,8 +118,6 @@ void BookRepositoryImpl::Save(const domain::Book& book) {
 }
 
 std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec(
         R"(
@@ -171,8 +163,6 @@ std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
 
 void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::optional<std::string>& new_title,
     const std::optional<int>& new_pub_year, const std::vector<std::string>& new_tags) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_, "serializable" };
 
     try {
@@ -213,8 +203,6 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
 }
 
 void BookRepositoryImpl::Delete(const domain::BookId& book_id) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
 
     try {
@@ -237,8 +225,6 @@ void BookRepositoryImpl::Delete(const domain::BookId& book_id) {
 }
 
 std::vector<domain::Book> BookRepositoryImpl::GetAuthorBooks(const domain::AuthorId& author_id) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
     auto result = txn.exec_params("SELECT id, title, author_id, publication_year FROM books WHERE author_id = $1 ORDER BY publication_year, title",
         author_id.ToString());
