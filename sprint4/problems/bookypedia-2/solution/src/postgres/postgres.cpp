@@ -1,14 +1,8 @@
 #include "postgres.h"
-#include "mutex"
-#include "thread"
 
 #include <pqxx/zview.hxx>
 
 namespace postgres {
-    std::mutex book_mutex;
-    std::mutex author_mutex;
-
-
 using namespace std::literals;
 using pqxx::operator"" _zv;
 
@@ -24,8 +18,6 @@ ON CONFLICT (id) DO UPDATE SET name=$2;
 }
 
 void AuthorRepositoryImpl::Delete(const domain::AuthorId& author_id) {
-    std::lock_guard<std::mutex> lock(book_mutex);
-    std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_ , "serializable" };
 
     try {
@@ -179,7 +171,7 @@ std::vector<std::pair<domain::Book, std::string>> BookRepositoryImpl::GetAll() {
 
 void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::optional<std::string>& new_title,
     const std::optional<int>& new_pub_year, const std::vector<std::string>& new_tags) {
-    /*std::lock_guard<std::mutex> lock(book_mutex);
+    std::lock_guard<std::mutex> lock(book_mutex);
     std::lock_guard<std::mutex> lock1(author_mutex);
     pqxx::work txn{ connection_, "serializable" };
 
@@ -204,14 +196,12 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
                 book_id.ToString()
             );
 
-            std::string insert_query = "INSERT INTO book_tags (book_id, tag) VALUES ";
-            std::vector<std::string> values;
             for (const auto& tag : new_tags) {
-                values.push_back("('" + txn.esc(book_id.ToString()) + "', '" + txn.esc(tag) + "')");
+                txn.exec_params(
+                    "INSERT INTO book_tags (book_id, tag) VALUES ($1, $2)",
+                    book_id.ToString(), tag
+                );
             }
-            insert_query += pqxx::internal::join(values.begin(), values.end(), ",");
-
-            txn.exec(insert_query);
         }
 
         txn.commit();
@@ -219,7 +209,7 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
     catch (const std::exception& e) {
         txn.abort();
         throw std::runtime_error("Failed to edit book: " + std::string{ e.what() });
-    }*/
+    }
 }
 
 void BookRepositoryImpl::Delete(const domain::BookId& book_id) {

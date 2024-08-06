@@ -52,7 +52,7 @@ View::View(menu::Menu& menu, app::UseCases& use_cases, std::istream& input, std:
     menu_.AddAction("EditAuthor"s, "name"s, "Edit author name"s, std::bind(&View::EditAuthor, this, ph::_1));
     menu_.AddAction("ShowBook"s, "title"s, "Show book information"s, std::bind(&View::ShowBook, this, ph::_1));
     menu_.AddAction("DeleteBook"s, "title"s, "Delete book"s, std::bind(&View::DeleteBook, this, ph::_1));
-    menu.AddAction("EditBook"s, "title"s, "Edit book's information"s, std::bind(&View::DeleteBook, this, ph::_1));
+    menu.AddAction("EditBook"s, "title"s, "Edit book's information"s, std::bind(&View::EditBook, this, ph::_1));
 }
 
 bool View::AddAuthor(std::istream& cmd_input) const {
