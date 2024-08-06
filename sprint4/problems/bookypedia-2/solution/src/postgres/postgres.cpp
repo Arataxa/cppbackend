@@ -166,7 +166,7 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
     pqxx::work txn{ connection_, "serializable" };
 
     try {
-        if (new_title.has_value()) {
+        if (new_title.has_value() && !new_title.value().empty()) {
             txn.exec_params(
                 "UPDATE books SET title = $2 WHERE id = $1",
                 book_id.ToString(), new_title.value()

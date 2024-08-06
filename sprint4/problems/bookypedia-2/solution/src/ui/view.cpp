@@ -246,6 +246,9 @@ bool View::EditBook(std::istream& cmd_input) const {
             if (!tags_set.empty()) {
                 new_tags.assign(tags_set.begin(), tags_set.end());
             }
+            else {
+                new_tags = book.tags;
+            }
         }
 
         use_cases_.EditBook(book.uid, new_title, new_publication_year, new_tags);
