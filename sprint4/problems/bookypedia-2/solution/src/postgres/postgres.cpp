@@ -180,12 +180,12 @@ void BookRepositoryImpl::EditBook(const domain::BookId& book_id, const std::opti
             );
         }
 
-        if (!new_tags.empty()) {
-            txn.exec_params(
-                "DELETE FROM book_tags WHERE book_id = $1",
-                book_id.ToString()
-            );
+        txn.exec_params(
+            "DELETE FROM book_tags WHERE book_id = $1",
+            book_id.ToString()
+        );
 
+        if (!new_tags.empty()) {
             for (const auto& tag : new_tags) {
                 txn.exec_params(
                     "INSERT INTO book_tags (book_id, tag) VALUES ($1, $2)",
