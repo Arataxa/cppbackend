@@ -188,7 +188,7 @@ bool View::EditBook(std::istream& cmd_input) const {
 
         std::optional<std::string> new_title = book.title;
         std::optional<int> new_publication_year = book.publication_year;
-        std::vector<std::string> new_tags = book.tags;
+        std::vector<std::string> new_tags;
 
         {
             output_ << "Enter new title or empty line to use the current one (" << book.title << "):" << std::endl;
@@ -245,9 +245,6 @@ bool View::EditBook(std::istream& cmd_input) const {
 
             if (!tags_set.empty()) {
                 new_tags.assign(tags_set.begin(), tags_set.end());
-            }
-            else {
-                new_tags = book.tags;
             }
         }
 
