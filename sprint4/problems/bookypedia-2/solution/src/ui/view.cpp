@@ -186,9 +186,9 @@ bool View::EditBook(std::istream& cmd_input) const {
             }
         }
 
-        std::optional<std::string> new_title;
-        std::optional<int> new_publication_year;
-        std::vector<std::string> new_tags;
+        std::optional<std::string> new_title = book.title;
+        std::optional<int> new_publication_year = book.publication_year;
+        std::vector<std::string> new_tags = book.tags;
 
         {
             output_ << "Enter new title or empty line to use the current one (" << book.title << "):" << std::endl;
