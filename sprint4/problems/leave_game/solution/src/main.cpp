@@ -172,7 +172,7 @@ void TryLoadState(application::Application& application) {
     }
 }
 
-constexpr const char DB_URL_ENV_NAME[]{ "BOOKYPEDIA_DB_URL" };
+constexpr const char DB_URL_ENV_NAME[]{ "GAME_DB_URL" };
 
 std::string GetDbUrlFromEnv() {
     std::string db_url;
