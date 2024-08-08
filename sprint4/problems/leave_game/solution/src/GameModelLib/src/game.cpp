@@ -333,9 +333,8 @@ namespace application {
 
         GameSession& Game::GetSession(const std::string& map_id) {
             auto it = sessions_.find(map_id);
-            if (it != sessions_.end()) {
-                return it->second;
-            }
+
+            return it->second;
         }
 
         std::vector<Player>& Game::GetLeavedPlayers() {

@@ -8,7 +8,7 @@
 #include <boost/asio.hpp>
 #include <boost/json/src.hpp>
 #include <boost/program_options.hpp>
-#include <pqxx\pqxx>
+#include <pqxx/pqxx>
 
 #include <fstream>
 #include <optional>
