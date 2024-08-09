@@ -2,6 +2,7 @@
 
 #include "application.h"
 #include "json_serialization.h"
+#include "database_manager.h"
 
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/strand.hpp>
@@ -102,7 +103,7 @@ namespace http_handler {
                 else if (target_str == base_target + "tick" && is_tick_request_allowed_) {
                     HandleTick();
                 }
-                else if (target_str == base_target + "records") {
+                else if (target_str.starts_with(base_target + "records")) {
                     HandleRecords();
                 }
                 else {
@@ -119,11 +120,14 @@ namespace http_handler {
         private:
             std::unordered_map<std::string, std::string> ParseQuery(const std::string& query) {
                 std::unordered_map<std::string, std::string> query_map;
-                std::string key, value;
                 std::istringstream query_stream(query);
+                std::string pair;
 
-                while (std::getline(query_stream, key, '=')) {
-                    if (std::getline(query_stream, value, '&')) {
+                while (std::getline(query_stream, pair, '&')) {
+                    size_t pos = pair.find('=');
+                    if (pos != std::string::npos) {
+                        std::string key = pair.substr(0, pos);
+                        std::string value = pair.substr(pos + 1);
                         query_map[key] = value;
                     }
                 }
@@ -162,6 +166,7 @@ namespace http_handler {
                 }
 
                 auto max_items_it = query_params.find("maxItems");
+                
                 if (max_items_it != query_params.end()) {
                     max_items = std::stoi(max_items_it->second);
                     if (max_items > 100) {

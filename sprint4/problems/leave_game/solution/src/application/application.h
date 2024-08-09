@@ -36,7 +36,7 @@ namespace application {
 
 		const loot_type_info::LootTypeInfo& GetLootTypeInfo() const;
 
-		const std::vector<Record>& GetRecords(int start, int max_items);
+		std::vector<Record> GetRecords(int start, int max_items);
 
 		void SaveLeavedPlayerScore(Player&& player);
 	private:

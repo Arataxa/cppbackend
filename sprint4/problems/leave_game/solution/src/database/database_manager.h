@@ -1,5 +1,6 @@
 #pragma once
 #include "database_thread_pool.h"
+#include <iostream>
 
 namespace database {
     struct Record {
@@ -22,8 +23,6 @@ namespace database {
 
     private:
         DatabaseConnectionPool db_pool_;
-
-        void ExecuteTransaction(const std::string& query, const std::vector<std::string>& params);
 
         void InitializeDataBase();
     };
