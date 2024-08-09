@@ -151,7 +151,7 @@ namespace application {
 
             if (!tokens_to_erase.empty()) {
                 for (auto& token : tokens_to_erase) {
-                    NotifyPlayerLeft(token);
+                    //NotifyPlayerLeft(token);
                 }
             }
 
