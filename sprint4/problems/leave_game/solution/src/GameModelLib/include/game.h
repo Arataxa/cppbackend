@@ -40,6 +40,8 @@ namespace application {
 
         class GameSession {
         public:
+            using PlayerLeftCallback = std::function<void(const PlayerToken&, Player&&)>;
+
             GameSession(const Map& map, bool is_random_spawn, loot_gen::LootGenerator loot_generator, double retirement_time);
 
             std::pair<PlayerToken, size_t> AddPlayer(std::string& name);
@@ -68,7 +70,18 @@ namespace application {
 
             void AddLoot(Loot loot);
 
-            std::vector<std::pair<PlayerToken, Player>>& GetInactivePlayers();
+            void SetPlayerLeftCallback(PlayerLeftCallback callback) {
+                player_left_callback_ = std::move(callback);
+            }
+
+        protected:
+            void NotifyPlayerLeft(PlayerToken token) {
+                if (player_left_callback_) {
+                    player_left_callback_(token, std::move(players_.at(token)));
+
+                    players_.erase(token);
+                }
+            }
         private:
             void ProcessTimeMovement(int time);
 
@@ -87,12 +100,13 @@ namespace application {
             const size_t max_bag_capacity_;
             const double retirement_time_;
             std::unordered_map<size_t, Loot> loots_;
-            std::vector<std::pair<PlayerToken,Player>> inactive_players_;
+            PlayerLeftCallback player_left_callback_;
         };
 
         class Game {
         public:
             using Maps = std::vector<Map>;
+            using PlayerLeftCallback = std::function<void(Player&&)>;
 
             explicit Game(bool is_random_spawn, loot_gen::LootGenerator loot_generator, double retirement_time);
 
@@ -124,15 +138,27 @@ namespace application {
 
             GameSession& GetSession(const std::string& map_id);
 
-            std::vector<Player>& GetLeavedPlayers();
-
             double GetRetirementTime() const;
+
+            void SetPlayerLeftCallback(PlayerLeftCallback callback) {
+                player_left_callback_ = std::move(callback);
+            }
 
             Game(const Game&) = delete;
             Game& operator=(const Game&) = delete;
 
             Game(Game&&) noexcept = default;
             Game& operator=(Game&&) noexcept = default;
+
+            void NotifyPlayerLeft(const PlayerToken& token, Player&& player) {
+                if (player_left_callback_) {
+                    std::lock_guard<std::mutex> lock(mutex_);
+
+                    players_.erase(token);
+
+                    player_left_callback_(std::move(player));
+                }
+            }
         private:
             using MapIdToIndex = std::unordered_map<std::string, size_t>;
 
@@ -144,8 +170,8 @@ namespace application {
 
             const bool is_random_spawn_;
             const double retirement_time_;
-            std::vector<Player> inactive_players_;
             std::mutex mutex_;
+            PlayerLeftCallback player_left_callback_;
         };
     } // namespace game
 } // namespace application

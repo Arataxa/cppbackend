@@ -149,11 +149,9 @@ namespace application {
                     return e_l.time < e_r.time;
                 });
 
-            for (auto& token : tokens_to_erase) {
-                auto it = players_.find(token);
-                if (it != players_.end()) {
-                    inactive_players_.push_back({ token, std::move(it->second) });
-                    players_.erase(it);
+            if (!tokens_to_erase.empty()) {
+                for (auto& token : tokens_to_erase) {
+                    NotifyPlayerLeft(token);
                 }
             }
 
@@ -215,10 +213,6 @@ namespace application {
             return players_;
         }
 
-        std::vector<std::pair<PlayerToken, Player>>& GameSession::GetInactivePlayers() {
-            return inactive_players_;
-        }
-
         Game::Game(bool is_random_spawn, loot_gen::LootGenerator loot_generator, double retirement_time)
             : loot_generator_(loot_generator), is_random_spawn_(is_random_spawn), retirement_time_(retirement_time) {
         }
@@ -264,6 +258,9 @@ namespace application {
             if (it == sessions_.end()) {
                 GameSession new_session(*map, is_random_spawn_, loot_generator_, retirement_time_);
                 it = sessions_.emplace(map->GetId(), std::move(new_session)).first;
+                it->second.SetPlayerLeftCallback([this](const PlayerToken& token, Player&& player) {
+                    this->NotifyPlayerLeft(token, std::move(player));
+                    });
             }
 
             auto data = it->second.AddPlayer(name);
@@ -293,16 +290,6 @@ namespace application {
             for (auto& session : sessions_) {
                 futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
                     session.second.ProcessTick(time);
-                    auto& inactive_players = session.second.GetInactivePlayers();
-                    if (!inactive_players.empty()) {
-                        std::lock_guard<std::mutex> lock(mutex_);
-                        for (auto& [key, player] : inactive_players) {
-                            inactive_players_.push_back(std::move(player));
-                            players_.erase(key);
-                        }
-
-                        inactive_players.clear();
-                    }
                     }));
             }
 
@@ -335,10 +322,6 @@ namespace application {
             auto it = sessions_.find(map_id);
 
             return it->second;
-        }
-
-        std::vector<Player>& Game::GetLeavedPlayers() {
-            return inactive_players_;
         }
 
         double Game::GetRetirementTime() const {

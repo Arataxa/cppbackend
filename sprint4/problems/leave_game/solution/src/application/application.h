@@ -32,30 +32,13 @@ namespace application {
 
 		void SaveGame();
 
-		void LoadGame() {
-			if (state_file_.empty()) {
-				return;
-			}
-
-			std::ifstream ifs(state_file_);
-
-			if (!ifs) {
-				return;
-			}
-
-			boost::archive::text_iarchive ia(ifs);
-			application::serialization::GameSerialization game_ser;
-			ia >> game_ser;
-
-			game_ser.ToGame(game_);
-
-			ifs.close();
-		}
+		void LoadGame();
 
 		const loot_type_info::LootTypeInfo& GetLootTypeInfo() const;
 
 		const std::vector<Record>& GetRecords(int start, int max_items);
 
+		void SaveLeavedPlayerScore(Player&& player);
 	private:
 		std::shared_ptr<game::Game> game_;
 		DatabaseManager db_manager_;

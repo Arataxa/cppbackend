@@ -2,8 +2,13 @@
 
 using namespace application;
 
-Application::Application(std::shared_ptr<game::Game> game, DatabaseManager&& db_manager, loot_type_info::LootTypeInfo&& type_info, const std::string& state_file, int save_state_period)
-	: game_(std::move(game)), db_manager_(std::move(db_manager)), loot_type_info_(std::move(type_info)), state_file_(state_file), save_state_period_(save_state_period_) {
+Application::Application(std::shared_ptr<game::Game> game, DatabaseManager&& db_manager, 
+	loot_type_info::LootTypeInfo&& type_info, const std::string& state_file, int save_state_period)
+	: game_(std::move(game)), db_manager_(std::move(db_manager)), loot_type_info_(std::move(type_info)),
+	state_file_(state_file), save_state_period_(save_state_period_) {
+	game_->SetPlayerLeftCallback([this](Player&& player) {
+		this->SaveLeavedPlayerScore(std::move(player));
+		});
 }
 
 std::pair<PlayerToken, size_t> Application::JoinGame(const Map* map, std::string& name) {
@@ -32,16 +37,6 @@ void Application::ProcessTime(int time) {
 			accumulated_time_ = 0;
 		}
 	}
-
-	auto& players = game_->GetLeavedPlayers();
-
-	if (!players.empty()) {
-		for (auto& player : players) {
-			db_manager_.SaveScore(player.GetName(), player.GetScore(), player.GetPlayTime());
-		}
-
-		players.clear();
-	}
 }
 
 void Application::SaveGame() {
@@ -57,10 +52,34 @@ void Application::SaveGame() {
 	ofs.close();
 }
 
+void Application::LoadGame() {
+	if (state_file_.empty()) {
+		return;
+	}
+
+	std::ifstream ifs(state_file_);
+
+	if (!ifs) {
+		return;
+	}
+
+	boost::archive::text_iarchive ia(ifs);
+	application::serialization::GameSerialization game_ser;
+	ia >> game_ser;
+
+	game_ser.ToGame(game_);
+
+	ifs.close();
+}
+
 const loot_type_info::LootTypeInfo& Application::GetLootTypeInfo() const {
 	return loot_type_info_;
 }
 
 const std::vector<Record>& Application::GetRecords(int start, int max_items) {
 	return db_manager_.GetRecords(start, max_items);
+}
+
+void Application::SaveLeavedPlayerScore(Player&& player) {
+	db_manager_.SaveScore(player.GetName(), player.GetScore(), player.GetPlayTime());
 }
