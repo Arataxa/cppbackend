@@ -102,7 +102,7 @@ namespace application {
 
             for (auto& [token, player] : players_) {
                 /*auto old_coordinates = player.GetPosition();*/
-                auto new_coordinates = player.Move(time);
+                //auto new_coordinates = player.Move(time);
 
                 /*if (player.GetInactiveTime() >= retirement_time_) {
                     tokens_to_erase.push_back(token);
@@ -295,19 +295,19 @@ namespace application {
         }
 
         void Game::ProcessTimeMovement(int time) {
-            std::vector<std::future<void>> futures;
-            std::size_t num_threads = std::thread::hardware_concurrency();
-            futures.reserve(sessions_.size());
+            //std::vector<std::future<void>> futures;
+            //std::size_t num_threads = std::thread::hardware_concurrency();
+            //futures.reserve(sessions_.size());
 
             for (auto& session : sessions_) {
-                futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
+                //futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
                     session.second.ProcessTick(time);
-                    }));
+                   // }));
             }
 
-            for (auto& future : futures) {
-                future.get();
-            }
+            //for (auto& future : futures) {
+                //future.get();
+            //}
         }
 
         void Game::AddSession(GameSession& session) {
