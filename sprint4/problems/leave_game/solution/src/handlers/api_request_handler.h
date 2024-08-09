@@ -605,7 +605,6 @@ namespace http_handler {
                 }
 
                 application_.ProcessTime(time);
-                //application_.SaveGame();
 
                 http::response<http::string_body> response;
 

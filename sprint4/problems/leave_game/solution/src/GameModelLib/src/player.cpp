@@ -84,14 +84,10 @@ namespace application {
             }
 
             Coordinates Player::ProccessVerticalMovement(double time) {
+                Coordinates new_coordinates;
+
                 Speed speed = dog_.GetSpeed();
                 Coordinates dog_coordinates = dog_.GetPosition();
-
-                if (speed.x == 0 && speed.y == 0) {
-                    return dog_coordinates;
-                }
-
-                Coordinates new_coordinates;
                 Direction direction = dog_.GetDirection();
 
                 const auto* horizontal_road = session_.GetHorizontalRoad(std::round(dog_coordinates.y));
@@ -143,14 +139,9 @@ namespace application {
             }
 
             Coordinates Player::ProccessHorizontalMovement(double time) {
-                Speed speed = dog_.GetSpeed();
-                Coordinates dog_coordinates = dog_.GetPosition();
-
-                if (speed.x == 0 && speed.y == 0) {
-                    return dog_coordinates;
-                }
-
                 Coordinates new_coordinates;
+                Speed speed = dog_.GetSpeed();
+                Coordinates dog_coordinates = dog_.GetPosition();               
                 Direction direction = dog_.GetDirection();
 
                 const auto* horizontal_road = session_.GetHorizontalRoad(std::round(dog_coordinates.y));
@@ -205,13 +196,13 @@ namespace application {
                 auto speed = dog_.GetSpeed();
                 play_time_in_second_ += time;
 
-                if (speed.x == 0 && speed.y == 0) {
+                /*if (speed.x == 0 && speed.y == 0) {
                     inactive_time_ += time;
                     return dog_.GetPosition();
                 }
                 else {
                     inactive_time_ = 0.0;
-                }
+                }*/
 
                 Coordinates new_coordinates;
                 Direction direction = dog_.GetDirection();

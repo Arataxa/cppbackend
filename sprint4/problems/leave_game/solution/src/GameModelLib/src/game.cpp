@@ -104,10 +104,10 @@ namespace application {
                 auto old_coordinates = player.GetPosition();
                 auto new_coordinates = player.Move(time);
 
-                if (player.GetInactiveTime() >= retirement_time_) {
+                /*if (player.GetInactiveTime() >= retirement_time_) {
                     tokens_to_erase.push_back(token);
                     continue;
-                }
+                }*/
 
                 if (old_coordinates == new_coordinates) {
                     continue;
@@ -149,11 +149,11 @@ namespace application {
                     return e_l.time < e_r.time;
                 });
 
-            if (!tokens_to_erase.empty()) {
+            /*if (!tokens_to_erase.empty()) {
                 for (auto& token : tokens_to_erase) {
                     NotifyPlayerLeft(token);
                 }
-            }
+            }*/
 
             return events;
         }
