@@ -70,18 +70,9 @@ namespace application {
 
             void AddLoot(Loot loot);
 
-            void SetPlayerLeftCallback(PlayerLeftCallback callback) {
-                player_left_callback_ = std::move(callback);
-            }
+            void SetPlayerLeftCallback(PlayerLeftCallback callback);
 
-        protected:
-            void NotifyPlayerLeft(PlayerToken token) {
-                if (player_left_callback_) {
-                    player_left_callback_(token, std::move(players_.at(token)));
-
-                    players_.erase(token);
-                }
-            }
+            void NotifyPlayerLeft(PlayerToken token);
         private:
             void ProcessTimeMovement(int time);
 
@@ -140,25 +131,15 @@ namespace application {
 
             double GetRetirementTime() const;
 
-            void SetPlayerLeftCallback(PlayerLeftCallback callback) {
-                player_left_callback_ = std::move(callback);
-            }
-
             Game(const Game&) = delete;
             Game& operator=(const Game&) = delete;
 
             Game(Game&&) noexcept = default;
             Game& operator=(Game&&) noexcept = default;
 
-            void NotifyPlayerLeft(const PlayerToken& token, Player&& player) {
-                if (player_left_callback_) {
-                    std::lock_guard<std::mutex> lock(mutex_);
+            void SetPlayerLeftCallback(PlayerLeftCallback callback);
 
-                    players_.erase(token);
-
-                    player_left_callback_(std::move(player));
-                }
-            }
+            void NotifyPlayerLeft(const PlayerToken& token, Player&& player);
         private:
             using MapIdToIndex = std::unordered_map<std::string, size_t>;
 

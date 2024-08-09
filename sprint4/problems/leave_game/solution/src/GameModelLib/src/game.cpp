@@ -101,13 +101,13 @@ namespace application {
             std::vector<PlayerToken> tokens_to_erase;
 
             for (auto& [token, player] : players_) {
+                auto old_coordinates = player.GetPosition();
+                auto new_coordinates = player.Move(time);
+
                 if (player.GetInactiveTime() >= retirement_time_) {
                     tokens_to_erase.push_back(token);
                     continue;
                 }
-
-                auto old_coordinates = player.GetPosition();
-                auto new_coordinates = player.Move(time);
 
                 if (old_coordinates == new_coordinates) {
                     continue;
@@ -151,7 +151,7 @@ namespace application {
 
             if (!tokens_to_erase.empty()) {
                 for (auto& token : tokens_to_erase) {
-                    //NotifyPlayerLeft(token);
+                    NotifyPlayerLeft(token);
                 }
             }
 
@@ -211,6 +211,18 @@ namespace application {
 
         const std::unordered_map<PlayerToken, Player, PlayerTokenHash>& GameSession::GetPlayers() const {
             return players_;
+        }
+
+        void GameSession::SetPlayerLeftCallback(PlayerLeftCallback callback) {
+            player_left_callback_ = std::move(callback);
+        }
+
+        void GameSession::NotifyPlayerLeft(PlayerToken token) {
+            if (player_left_callback_) {
+                player_left_callback_(token, std::move(players_.at(token)));
+
+                players_.erase(token);
+            }
         }
 
         Game::Game(bool is_random_spawn, loot_gen::LootGenerator loot_generator, double retirement_time)
@@ -330,6 +342,20 @@ namespace application {
 
         double Game::GetRetirementTime() const {
             return retirement_time_;
+        }
+
+        void Game::SetPlayerLeftCallback(PlayerLeftCallback callback) {
+            player_left_callback_ = std::move(callback);
+        }
+
+        void Game::NotifyPlayerLeft(const PlayerToken& token, Player&& player) {
+            if (player_left_callback_) {
+                std::lock_guard<std::mutex> lock(mutex_);
+
+                players_.erase(token);
+
+                player_left_callback_(std::move(player));
+            }
         }
 
     } // namespace game
