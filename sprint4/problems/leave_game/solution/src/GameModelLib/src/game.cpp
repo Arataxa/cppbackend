@@ -92,8 +92,8 @@ namespace application {
         void GameSession::ProcessTimeMovement(int time) {
             double time_in_second = time / 1000.0;
             
-            auto collected_events = CollectEvents(time_in_second);
-            ProcessEvents(collected_events);
+            //auto collected_events = CollectEvents(time_in_second);
+            //ProcessEvents(collected_events);
         }
 
         std::vector<InteractionEvent> GameSession::CollectEvents(double time) {
