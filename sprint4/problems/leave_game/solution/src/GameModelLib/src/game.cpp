@@ -101,7 +101,7 @@ namespace application {
             //std::vector<PlayerToken> tokens_to_erase;
 
             for (auto& [token, player] : players_) {
-                auto old_coordinates = player.GetPosition();
+                /*auto old_coordinates = player.GetPosition();*/
                 auto new_coordinates = player.Move(time);
 
                 /*if (player.GetInactiveTime() >= retirement_time_) {
@@ -109,7 +109,7 @@ namespace application {
                     continue;
                 }*/
 
-                if (old_coordinates == new_coordinates) {
+                /*if (old_coordinates == new_coordinates) {
                     continue;
                 }
                 
@@ -125,9 +125,9 @@ namespace application {
 
                         events.push_back(interaction_event);
                     }
-                }              
+                }         */     
 
-                for (const auto& office : map_->GetOffices()) {
+                /*for (const auto& office : map_->GetOffices()) {
                     auto pos = office.GetPosition();
                     Coordinates office_coordinates{ .x = static_cast<double>(pos.x), .y = static_cast<double>(pos.y) };
                     auto collect_result = TryCollectPoint(old_coordinates, new_coordinates, office_coordinates);
@@ -141,13 +141,13 @@ namespace application {
                         
                         events.push_back(interaction_event);
                     }
-                }
+                }*/
             }
 
-            std::sort(events.begin(), events.end(),
+            /*std::sort(events.begin(), events.end(),
                 [](const InteractionEvent& e_l, const InteractionEvent& e_r) {
                     return e_l.time < e_r.time;
-                });
+                });*/
 
             /*if (!tokens_to_erase.empty()) {
                 for (auto& token : tokens_to_erase) {
