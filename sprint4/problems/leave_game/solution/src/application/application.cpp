@@ -30,13 +30,13 @@ Player* Application::GetPlayer(const PlayerToken& token) {
 void Application::ProcessTime(int time) {
 	game_.ProcessTimeMovement(time);
 
-	if (save_state_period_ != -1) {
+	/*if (save_state_period_ != -1) {
 		accumulated_time_ += time;
 		if (accumulated_time_ >= save_state_period_) {
 			SaveGame();
 			accumulated_time_ = 0;
 		}
-	}
+	}*/
 }
 
 void Application::SaveGame() {

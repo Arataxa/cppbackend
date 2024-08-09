@@ -301,7 +301,7 @@ namespace application {
 
             for (auto& session : sessions_) {
                 //futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
-                    session.second.ProcessTick(time);
+                    //session.second.ProcessTick(time);
                    // }));
             }
 
