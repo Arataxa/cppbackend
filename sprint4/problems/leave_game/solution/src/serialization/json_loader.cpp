@@ -123,7 +123,7 @@ namespace json_loader {
     GameLoader::GameLoader(bool is_random_spawn) : is_random_spawn_(is_random_spawn) {
     }
 
-    std::shared_ptr<game::Game> GameLoader::Load(const std::filesystem::path& json_path) {
+    game::Game GameLoader::Load(const std::filesystem::path& json_path) {
         std::ifstream file(json_path);
         if (!file.is_open()) {
             throw std::runtime_error("Could not open file: " + json_path.string());
@@ -136,7 +136,7 @@ namespace json_loader {
         return ParseGameFromJson(buffer.str());
     }
     
-    std::shared_ptr<game::Game> GameLoader::ParseGameFromJson(const std::string& json_str) {
+    game::Game GameLoader::ParseGameFromJson(const std::string& json_str) {
         json::value json_value = json::parse(json_str);
         json::object json_obj = json_value.as_object();
 
@@ -165,13 +165,13 @@ namespace json_loader {
             }
         }
 
-        auto game = std::make_shared<game::Game>(is_random_spawn_, ParseLootGenerator(json_obj), retirement_time);
+        auto game = game::Game(is_random_spawn_, ParseLootGenerator(json_obj), retirement_time);
 
         MapParser parser(default_dog_speed, default_bag_capacity);
 
         for (const auto& json_map : json_obj["maps"].as_array()) {
             auto new_map = parser.Parse(json_map.as_object());
-            game->AddMap(new_map);
+            game.AddMap(new_map);
 
             loot_type_info_.AddInfo(new_map.GetName(), std::move(parser.GetLootTypeInfo()));
         }

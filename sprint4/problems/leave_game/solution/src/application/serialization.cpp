@@ -102,24 +102,24 @@ namespace application {
             return game_session;
         }
 
-        GameSerialization GameSerialization::FromGame(const std::shared_ptr<game::Game> game) {
+        GameSerialization GameSerialization::FromGame(const game::Game& game) {
             GameSerialization game_ser;
 
-            for (const auto& [map_id, session] : game->GetSessions()) {
+            for (const auto& [map_id, session] : game.GetSessions()) {
                 game_ser.sessions_.push_back(GameSessionSerialization::FromGameSession(session));
             }
 
             return game_ser;
         }
 
-        void GameSerialization::ToGame(std::shared_ptr<game::Game> game) {
-            auto retirement_time = game->GetRetirementTime();
+        void GameSerialization::ToGame(game::Game& game) {
+            auto retirement_time = game.GetRetirementTime();
             for (auto& session_ser : sessions_) {
-                auto session = session_ser.ToGameSession(*game->GetMap(session_ser.map_id), game->IsSpawnRandom(), game->GetLootGenerator(), retirement_time);
-                game->AddSession(session);
+                auto session = session_ser.ToGameSession(*game.GetMap(session_ser.map_id), game.IsSpawnRandom(), game.GetLootGenerator(), retirement_time);
+                game.AddSession(session);
 
                 for (auto& [token_str, player_ser] : session_ser.players_) {
-                    game->AddPlayer(session_ser.map_id, PlayerToken::FromString(token_str), player_ser.ToPlayer(game->GetSession(session_ser.map_id)));
+                    game.AddPlayer(session_ser.map_id, PlayerToken::FromString(token_str), player_ser.ToPlayer(game.GetSession(session_ser.map_id)));
                 }
             }
         }

@@ -151,7 +151,7 @@ namespace application {
 
             const bool is_random_spawn_;
             const double retirement_time_;
-            std::mutex mutex_;
+            //std::mutex mutex_;
             PlayerLeftCallback player_left_callback_;
         };
     } // namespace game

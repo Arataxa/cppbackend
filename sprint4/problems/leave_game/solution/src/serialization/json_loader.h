@@ -34,11 +34,11 @@ namespace json_loader {
 	public:
 		GameLoader(bool is_random_spawn);
 
-		std::shared_ptr<game::Game> Load(const std::filesystem::path& json_path);
+		game::Game Load(const std::filesystem::path& json_path);
 
 		loot_type_info::LootTypeInfo GetLootTypeInfo() const;
 	private:
-		std::shared_ptr<game::Game> ParseGameFromJson(const std::string& json_str);
+		game::Game ParseGameFromJson(const std::string& json_str);
 
 		loot_gen::LootGenerator ParseLootGenerator(const json::object& json_obj) const;
 		bool is_random_spawn_;
