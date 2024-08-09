@@ -92,24 +92,24 @@ namespace application {
         void GameSession::ProcessTimeMovement(int time) {
             double time_in_second = time / 1000.0;
             
-            //auto collected_events = CollectEvents(time_in_second);
-            //ProcessEvents(collected_events);
+            auto collected_events = CollectEvents(time_in_second);
+            ProcessEvents(collected_events);
         }
 
         std::vector<InteractionEvent> GameSession::CollectEvents(double time) {
             std::vector<InteractionEvent> events;
-            //std::vector<PlayerToken> tokens_to_erase;
+            std::vector<PlayerToken> tokens_to_erase;
 
             for (auto& [token, player] : players_) {
-                /*auto old_coordinates = player.GetPosition();*/
-                //auto new_coordinates = player.Move(time);
+                auto old_coordinates = player.GetPosition();
+                auto new_coordinates = player.Move(time);
 
-                /*if (player.GetInactiveTime() >= retirement_time_) {
+                if (player.GetInactiveTime() >= retirement_time_) {
                     tokens_to_erase.push_back(token);
                     continue;
-                }*/
+                }
 
-                /*if (old_coordinates == new_coordinates) {
+                if (old_coordinates == new_coordinates) {
                     continue;
                 }
                 
@@ -125,9 +125,9 @@ namespace application {
 
                         events.push_back(interaction_event);
                     }
-                }         */     
+                } 
 
-                /*for (const auto& office : map_->GetOffices()) {
+                for (const auto& office : map_->GetOffices()) {
                     auto pos = office.GetPosition();
                     Coordinates office_coordinates{ .x = static_cast<double>(pos.x), .y = static_cast<double>(pos.y) };
                     auto collect_result = TryCollectPoint(old_coordinates, new_coordinates, office_coordinates);
@@ -141,19 +141,19 @@ namespace application {
                         
                         events.push_back(interaction_event);
                     }
-                }*/
+                }
             }
 
-            /*std::sort(events.begin(), events.end(),
+            std::sort(events.begin(), events.end(),
                 [](const InteractionEvent& e_l, const InteractionEvent& e_r) {
                     return e_l.time < e_r.time;
-                });*/
+                });
 
-            /*if (!tokens_to_erase.empty()) {
+            if (!tokens_to_erase.empty()) {
                 for (auto& token : tokens_to_erase) {
                     NotifyPlayerLeft(token);
                 }
-            }*/
+            }
 
             return events;
         }
@@ -295,19 +295,19 @@ namespace application {
         }
 
         void Game::ProcessTimeMovement(int time) {
-            //std::vector<std::future<void>> futures;
-            //std::size_t num_threads = std::thread::hardware_concurrency();
-            //futures.reserve(sessions_.size());
+            std::vector<std::future<void>> futures;
+            std::size_t num_threads = std::thread::hardware_concurrency();
+            futures.reserve(sessions_.size());
 
             for (auto& session : sessions_) {
-                //futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
-                    //session.second.ProcessTick(time);
-                   // }));
+                futures.emplace_back(std::async(std::launch::async, [&session, time, this]() {
+                    session.second.ProcessTick(time);
+                    }));
             }
 
-            //for (auto& future : futures) {
-                //future.get();
-            //}
+            for (auto& future : futures) {
+                future.get();
+            }
         }
 
         void Game::AddSession(GameSession& session) {
