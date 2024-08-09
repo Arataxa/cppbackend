@@ -54,7 +54,7 @@ namespace application {
 
 		const loot_type_info::LootTypeInfo& GetLootTypeInfo() const;
 
-		const std::vector<Record>& GetRecords(int start);
+		const std::vector<Record>& GetRecords(int start, int max_items);
 
 	private:
 		std::shared_ptr<game::Game> game_;

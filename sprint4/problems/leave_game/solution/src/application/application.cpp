@@ -61,6 +61,6 @@ const loot_type_info::LootTypeInfo& Application::GetLootTypeInfo() const {
 	return loot_type_info_;
 }
 
-const std::vector<Record>& Application::GetRecords(int start) {
-	return db_manager_.GetRecords(start);
+const std::vector<Record>& Application::GetRecords(int start, int max_items) {
+	return db_manager_.GetRecords(start, max_items);
 }

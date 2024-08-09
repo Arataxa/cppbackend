@@ -177,7 +177,7 @@ namespace http_handler {
                     }
                 }
 
-                auto records = application_.GetRecords(start);
+                auto records = application_.GetRecords(start, max_items);
 
                 http::response<http::string_body> response;
 

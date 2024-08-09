@@ -1,5 +1,7 @@
 #include "database_thread_pool.h"
 
+#include <stdexcept>
+
 namespace database {
     DatabaseConnectionPool::ConnectionWrapper::ConnectionWrapper(std::shared_ptr<pqxx::connection>&& connection, DatabaseConnectionPool& pool)
         : connection_(std::move(connection)), pool_(&pool) {
@@ -15,8 +17,11 @@ namespace database {
     pqxx::connection* DatabaseConnectionPool::ConnectionWrapper::operator->() { return connection_.get(); }
 
     DatabaseConnectionPool::DatabaseConnectionPool(const std::string& connection_info, std::size_t pool_size) {
-        for (std::size_t i = 0; i < pool_size; ++i) {
+        try {
             pool_.emplace(std::make_shared<pqxx::connection>(connection_info));
+        }
+        catch (const pqxx::broken_connection& e) {
+            throw std::runtime_error("Failed to connect to the database : " + std::string(e.what()));  
         }
     }
 

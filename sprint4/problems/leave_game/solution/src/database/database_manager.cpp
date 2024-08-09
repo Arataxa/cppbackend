@@ -12,10 +12,10 @@ namespace database {
         ExecuteTransaction(query, params);
     }
 
-    std::vector<Record> DatabaseManager::GetRecords(int start) {
+    std::vector<Record> DatabaseManager::GetRecords(int start, int item_limit) {
         std::vector<Record> records;
         std::string query = "SELECT name, score, play_time FROM retired_players ORDER BY score DESC, play_time ASC, name ASC LIMIT $1 OFFSET $2";
-        std::vector<std::string> params = { item_limit, std::to_string(start) };
+        std::vector<std::string> params = { std::to_string(item_limit), std::to_string(start) };
 
         auto connection = db_pool_.GetConnection();
         try {

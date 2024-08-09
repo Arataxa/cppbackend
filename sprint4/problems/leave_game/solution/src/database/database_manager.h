@@ -14,7 +14,7 @@ namespace database {
 
         void SaveScore(const std::string& name, int score, float play_time);
 
-        std::vector<Record> GetRecords(int start);
+        std::vector<Record> GetRecords(int start, int item_limit);
 
         DatabaseManager(DatabaseManager&& other) noexcept;
 
@@ -22,7 +22,6 @@ namespace database {
 
     private:
         DatabaseConnectionPool db_pool_;
-        const std::string item_limit = "100";
 
         void ExecuteTransaction(const std::string& query, const std::vector<std::string>& params);
 
