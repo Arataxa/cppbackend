@@ -2,7 +2,7 @@
 
 namespace database {
     DatabaseManager::DatabaseManager(const std::string& connection_info, std::size_t num_threads)
-        : db_pool_(connection_info, num_threads), thread_pool_(num_threads) {
+        : db_pool_(connection_info, num_threads) {
         InitializeDataBase();
     }
 
@@ -32,37 +32,34 @@ namespace database {
         return records;
     }
 
-    DatabaseManager::DatabaseManager(DatabaseManager&& other) noexcept : db_pool_(std::move(other.db_pool_)),
-        thread_pool_(std::move(other.thread_pool_)) {}
+    DatabaseManager::DatabaseManager(DatabaseManager&& other) noexcept : db_pool_(std::move(other.db_pool_)) {}
 
     DatabaseManager& DatabaseManager::operator=(DatabaseManager&& other) noexcept {
         if (this != &other) {
             db_pool_ = std::move(other.db_pool_);
-            thread_pool_ = std::move(other.thread_pool_);
         }
 
         return *this;
     }
 
     void DatabaseManager::ExecuteTransaction(const std::string& query, const std::vector<std::string>& params) {
-        thread_pool_.Post([this, query, params] {
-            auto conn = db_pool_.GetConnection();
-            try {
-                pqxx::work txn(*conn);
+        auto conn = db_pool_.GetConnection();
+        try {
+            pqxx::work txn(*conn);
 
-                if (params.empty()) {
-                    txn.exec(query);
-                }
-                else {
-                    txn.exec_params(query, params);
-                }
+            if (params.empty()) {
+                txn.exec(query);
+            }
+            else {
+                txn.exec_params(query, params);
+            }
 
-                txn.commit();
-            }
-            catch (const std::exception& e) {
-                //std::cerr << "Transaction failed: " << e.what() << std::endl;
-            }
-            });
+            txn.commit();
+        }
+        catch (const std::exception& e) {
+            // Логирование ошибки или обработка
+            // std::cerr << "Transaction failed: " << e.what() << std::endl;
+        }
     }
 
     void DatabaseManager::InitializeDataBase() {

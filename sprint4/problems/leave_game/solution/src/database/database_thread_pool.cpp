@@ -48,39 +48,5 @@ namespace database {
         return *this;
     }
 
-    ThreadPool::ThreadPool(std::size_t num_threads)
-        : io_context_(std::make_shared<boost::asio::io_context>()),
-        work_guard_(std::make_shared<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>>(boost::asio::make_work_guard(*io_context_))) {
-        for (std::size_t i = 0; i < num_threads; ++i) {
-            threads_.emplace_back([this] {
-                io_context_->run();
-                });
-        }
-    }
 
-    ThreadPool::~ThreadPool() {
-        if (io_context_) {
-            io_context_->stop();
-
-            for (auto& thread : threads_) {
-                if (thread.joinable()) {
-                    thread.join();
-                }
-            }
-        }
-    }
-
-    ThreadPool::ThreadPool(ThreadPool&& other) noexcept 
-        : io_context_(std::move(other.io_context_)),
-          work_guard_(std::move(other.work_guard_)),
-          threads_(std::move(other.threads_)) {} 
- 
-    ThreadPool& ThreadPool::operator=(ThreadPool&& other) noexcept {
-        if (this != &other) {
-            io_context_ = std::move(other.io_context_);
-            work_guard_ = std::move(other.work_guard_);
-            threads_ = std::move(other.threads_);
-        }
-        return *this;
-    }
 }

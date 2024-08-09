@@ -37,24 +37,4 @@ namespace database {
         std::mutex mutex_;
         std::condition_variable condition_;
     };
-
-    class ThreadPool {
-    public:
-        explicit ThreadPool(std::size_t num_threads);
-
-        ~ThreadPool();
-
-        template <typename F>
-        void Post(F&& f) {
-            boost::asio::post(*io_context_, std::forward<F>(f));
-        }
-
-        ThreadPool(ThreadPool&& other) noexcept;
-        ThreadPool& operator=(ThreadPool&& other) noexcept;
-
-    private:
-        std::shared_ptr<boost::asio::io_context> io_context_;
-        std::shared_ptr<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> work_guard_;
-        std::vector<std::thread> threads_;
-    };
 }

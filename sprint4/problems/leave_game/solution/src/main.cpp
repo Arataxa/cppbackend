@@ -128,32 +128,6 @@ namespace {
 
 }
 
-void InitializeSignalHandler(net::io_context& ioc) {
-    net::signal_set signals(ioc, SIGINT, SIGTERM);
-    signals.async_wait([&ioc](const boost::system::error_code& ec, int /*signo*/) {
-        boost::json::value data;
-        if (!ec) {
-            data = { {"code", "0"} };
-        }
-        else {
-            data = { {"code", "EXIT_FAILURE"}, {"exception", ec.message()} };
-        }
-        BOOST_LOG_TRIVIAL(info) << boost::log::add_value(additional_data, data) << "server exited";
-        ioc.stop();
-        });
-}
-
-void StartTicker(application::Application& application ,int tick_period, boost::asio::strand<net::io_context::executor_type>& api_strand) {
-    auto ticker = std::make_shared<Ticker>(
-        api_strand,
-        std::chrono::milliseconds(tick_period),
-        [&application](std::chrono::milliseconds delta) {
-            application.ProcessTime(delta.count() / 1000.0);
-        }
-    );
-    ticker->Start();
-}
-
 void TryLoadState(application::Application& application) {
     try {
         application.LoadGame();
@@ -205,49 +179,10 @@ application::Application InitializeApplication(Args& args) {
     return application;
 }
 
-void StartHttpHandler(net::io_context& ioc, http_handler::FrontController& handler) {
-    std::string interface_address = "0.0.0.0";
-    const auto address = net::ip::make_address(interface_address);
-    const unsigned short port = 8080;
-    http_server::ServeHttp(ioc, { address, port }, [&handler](auto&& req, auto&& send) {
-        handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
-        });
-
-    boost::json::value data{
-        {"port", port},
-        {"address", interface_address}
-    };
-    BOOST_LOG_TRIVIAL(info) << boost::log::add_value(additional_data, data) << "server started";
-}
-
-void StartServer(Args& args) {
-    application::Application application = InitializeApplication(args);
-
-    const unsigned num_threads = std::thread::hardware_concurrency();
-    net::io_context ioc(num_threads);
-
-    auto api_strand = net::make_strand(ioc);
-
-    InitializeSignalHandler(ioc);
-    
-    if (args.tick_period) {
-        StartTicker(application, args.tick_period.value(), api_strand);
-    }
-    
-    http_handler::FrontController handler{ application, args.www_root, api_strand, !args.tick_period.has_value() };
-    StartHttpHandler(ioc, handler);
-
-    RunWorkers(std::max(1u, num_threads), [&ioc] {
-    ioc.run();
-        });
-
-    application.SaveGame();
-}
-
 int main(int argc, const char* argv[]) {
     try {
         auto args = ParseCommandLine(argc, argv);
-
+        setlocale(LC_ALL, "Ru");
         if (!args) {
             return EXIT_FAILURE;
         }
@@ -256,7 +191,65 @@ int main(int argc, const char* argv[]) {
             std::cout << std::unitbuf;
             InitializeLogger();
 
-            StartServer(*args);
+            // 1. Загружаем карту из файла и построить модель игры
+            application::Application application = InitializeApplication(*args);
+
+            // 2. Инициализируем io_context
+            const unsigned num_threads = std::thread::hardware_concurrency();
+            net::io_context ioc(num_threads);
+
+            // 3. Добавляем асинхронный обработчик сигналов SIGINT и SIGTERM
+            net::signal_set signals(ioc, SIGINT, SIGTERM);
+            signals.async_wait([&ioc](const boost::system::error_code& ec, int /*signo*/) {
+                boost::json::value data;
+                if (!ec) {
+                    data = { {"code", "0"} };
+                }
+                else {
+                    data = { {"code", "EXIT_FAILURE"}, {"exception", ec.message()} };
+                }
+                BOOST_LOG_TRIVIAL(info) << boost::log::add_value(additional_data, data) << "server exited";
+                ioc.stop();
+                });
+
+            auto api_strand = net::make_strand(ioc);
+
+            // Настраиваем вызов метода Application::Tick каждые tick_period миллисекунд внутри strand
+
+            if (args->tick_period) {
+                auto ticker = std::make_shared<Ticker>(
+                    api_strand,
+                    std::chrono::milliseconds(args->tick_period.value()),
+                    [&application](std::chrono::milliseconds delta) {
+                        application.ProcessTime(delta.count() / 1000.0);
+                    }
+                );
+                ticker->Start();
+            }
+
+            // 4. Создаём обработчик HTTP-запросов и связываем его с моделью игры
+            http_handler::FrontController handler{ application, args->www_root, api_strand, !args->tick_period.has_value() };
+
+            // 5. Запустить обработчик HTTP-запросов, делегируя их обработчику запросов
+            std::string interface_address = "0.0.0.0";
+            const auto address = net::ip::make_address(interface_address);
+            const unsigned short port = 8080;
+            http_server::ServeHttp(ioc, { address, port }, [&handler](auto&& req, auto&& send) {
+                handler(std::forward<decltype(req)>(req), std::forward<decltype(send)>(send));
+                });
+
+            boost::json::value data{
+                {"port", port},
+                {"address", interface_address}
+            };
+            BOOST_LOG_TRIVIAL(info) << boost::log::add_value(additional_data, data) << "server started";
+
+            // 6. Запускаем обработку асинхронных операций
+            RunWorkers(std::max(1u, num_threads), [&ioc] {
+                ioc.run();
+                });
+
+            application.SaveGame();
         }
         catch (const std::exception& ex) {
             boost::json::value data{

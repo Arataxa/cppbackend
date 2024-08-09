@@ -22,7 +22,6 @@ namespace database {
 
     private:
         DatabaseConnectionPool db_pool_;
-        ThreadPool thread_pool_;
         const std::string item_limit = "100";
 
         void ExecuteTransaction(const std::string& query, const std::vector<std::string>& params);
