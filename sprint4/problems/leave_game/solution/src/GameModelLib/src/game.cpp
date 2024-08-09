@@ -299,7 +299,11 @@ namespace application {
         }
 
         void Game::AddSession(GameSession& session) {
-            sessions_.emplace(session.GetMap()->GetId(), session);
+            auto it = sessions_.emplace(session.GetMap()->GetId(), session).first;
+
+            it->second.SetPlayerLeftCallback([this](const PlayerToken& token, Player&& player) {
+            this->NotifyPlayerLeft(token, std::move(player));
+                });
         }
 
         const std::map<std::string, GameSession>& Game::GetSessions() const {

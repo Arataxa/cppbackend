@@ -43,7 +43,7 @@ namespace application {
             std::uniform_int_distribution<uint64_t> PlayerToken::dist;
 
             Player::Player(Dog dog, GameSession& session)
-                : dog_(dog), session_(session), play_time_in_second_(0.0) {
+                : dog_(dog), session_(session), play_time_in_second_(0.0), inactive_time_(0.0) {
             }
 
             size_t Player::GetId() const {
