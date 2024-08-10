@@ -196,13 +196,13 @@ namespace application {
                 auto speed = dog_.GetSpeed();
                 play_time_in_second_ += time;
 
-                /*if (speed.x == 0 && speed.y == 0) {
+                if (speed.x == 0 && speed.y == 0) {
                     inactive_time_ += time;
                     return dog_.GetPosition();
                 }
                 else {
                     inactive_time_ = 0.0;
-                }*/
+                }
 
                 Coordinates new_coordinates;
                 Direction direction = dog_.GetDirection();
