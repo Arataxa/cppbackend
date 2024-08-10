@@ -8,7 +8,7 @@ namespace database {
         InitializeDataBase();
     }
 
-    void DatabaseManager::SaveScore(const std::string& name, int score, float play_time) {
+    void DatabaseManager::SaveScore(const std::string& name, int score, double play_time) {
         std::string query = "INSERT INTO retired_players (name, score, play_time) VALUES ($1, $2, $3);";
 
         try {
@@ -42,7 +42,7 @@ namespace database {
                     records.push_back(Record{
                         row["name"].as<std::string>(),
                         row["score"].as<int>(),
-                        row["play_time"].as<float>()
+                        row["play_time"].as<double>()
                         });
                 }
                 catch (const std::exception& e) {
@@ -73,7 +73,7 @@ namespace database {
             id SERIAL PRIMARY KEY,
             name VARCHAR(255) NOT NULL,
             score INT NOT NULL,
-            play_time FLOAT NOT NULL
+            play_time DOUBLE PRECISION NOT NULL
         );
         CREATE INDEX IF NOT EXISTS idx_score_play_time ON retired_players (score DESC, play_time ASC, name ASC);
     )";
