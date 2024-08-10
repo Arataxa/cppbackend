@@ -7,8 +7,8 @@ namespace json_loader {
     namespace json = boost::json;
     namespace game = application::game;
     namespace map = game::map;
-    
-    MapParser::MapParser(double default_dog_speed, size_t default_bag_capacity) 
+
+    MapParser::MapParser(double default_dog_speed, size_t default_bag_capacity)
         : default_dog_speed_(default_dog_speed), default_bag_capacity_(default_bag_capacity) {
     }
 
@@ -17,7 +17,7 @@ namespace json_loader {
         std::string name = map_obj.at("name").as_string().c_str();
 
         double dog_speed;
-        size_t bag_capacity; 
+        size_t bag_capacity;
 
         {
             auto it = map_obj.find("dogSpeed");
@@ -123,7 +123,7 @@ namespace json_loader {
     GameLoader::GameLoader(bool is_random_spawn) : is_random_spawn_(is_random_spawn) {
     }
 
-    game::Game GameLoader::Load(const std::filesystem::path& json_path) {
+    std::shared_ptr<game::Game> GameLoader::Load(const std::filesystem::path& json_path) {
         std::ifstream file(json_path);
         if (!file.is_open()) {
             throw std::runtime_error("Could not open file: " + json_path.string());
@@ -135,8 +135,8 @@ namespace json_loader {
 
         return ParseGameFromJson(buffer.str());
     }
-    
-    game::Game GameLoader::ParseGameFromJson(const std::string& json_str) {
+
+    std::shared_ptr<game::Game> GameLoader::ParseGameFromJson(const std::string& json_str) {
         json::value json_value = json::parse(json_str);
         json::object json_obj = json_value.as_object();
 
@@ -165,13 +165,13 @@ namespace json_loader {
             }
         }
 
-        auto game = game::Game(is_random_spawn_, ParseLootGenerator(json_obj), retirement_time);
+        auto game = std::make_shared<game::Game>(is_random_spawn_, ParseLootGenerator(json_obj), retirement_time);
 
         MapParser parser(default_dog_speed, default_bag_capacity);
 
         for (const auto& json_map : json_obj["maps"].as_array()) {
             auto new_map = parser.Parse(json_map.as_object());
-            game.AddMap(new_map);
+            game->AddMap(new_map);
 
             loot_type_info_.AddInfo(new_map.GetName(), std::move(parser.GetLootTypeInfo()));
         }

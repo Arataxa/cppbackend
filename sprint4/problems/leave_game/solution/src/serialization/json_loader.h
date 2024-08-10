@@ -21,9 +21,9 @@ namespace json_loader {
 	private:
 		void ParseRoads(const json::array& roads_array, map::Map& game_map) const;
 
-		void ParseBuilding(const json::array& buildings_array, map::Map& game_map)const ;
+		void ParseBuilding(const json::array& buildings_array, map::Map& game_map)const;
 
-		void ParseOffices(const json::array& offices_array, map::Map& game_map)const ;
+		void ParseOffices(const json::array& offices_array, map::Map& game_map)const;
 
 		json::array loot_type_info_;
 		double default_dog_speed_;
@@ -34,11 +34,11 @@ namespace json_loader {
 	public:
 		GameLoader(bool is_random_spawn);
 
-		game::Game Load(const std::filesystem::path& json_path);
+		std::shared_ptr<game::Game> Load(const std::filesystem::path& json_path);
 
 		loot_type_info::LootTypeInfo GetLootTypeInfo() const;
 	private:
-		game::Game ParseGameFromJson(const std::string& json_str);
+		std::shared_ptr<game::Game> ParseGameFromJson(const std::string& json_str);
 
 		loot_gen::LootGenerator ParseLootGenerator(const json::object& json_obj) const;
 		bool is_random_spawn_;

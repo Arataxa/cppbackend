@@ -131,12 +131,6 @@ namespace application {
 
             double GetRetirementTime() const;
 
-            Game(const Game&) = delete;
-            Game& operator=(const Game&) = delete;
-
-            Game(Game&&) noexcept = default;
-            Game& operator=(Game&&) noexcept = default;
-
             void SetPlayerLeftCallback(PlayerLeftCallback callback);
 
             void NotifyPlayerLeft(const PlayerToken& token, Player&& player);
@@ -151,7 +145,7 @@ namespace application {
 
             const bool is_random_spawn_;
             const double retirement_time_;
-            //std::mutex mutex_;
+            std::mutex mutex_;
             PlayerLeftCallback player_left_callback_;
         };
     } // namespace game

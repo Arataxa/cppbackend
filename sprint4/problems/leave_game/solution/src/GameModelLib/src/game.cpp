@@ -350,8 +350,7 @@ namespace application {
 
         void Game::NotifyPlayerLeft(const PlayerToken& token, Player&& player) {
             if (player_left_callback_) {
-                //std::lock_guard<std::mutex> lock(mutex_);
-
+                std::lock_guard<std::mutex> lock(mutex_);
                 players_.erase(token);
 
                 player_left_callback_(std::move(player));

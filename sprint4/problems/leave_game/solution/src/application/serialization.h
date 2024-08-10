@@ -9,8 +9,8 @@
 #include <iostream>
 
 namespace application {
-	using namespace game;
-	using namespace map;
+    using namespace game;
+    using namespace map;
 
     namespace serialization {
         class DogSerialization {
@@ -96,9 +96,9 @@ namespace application {
 
         class GameSerialization {
         public:
-            static GameSerialization FromGame(const game::Game& game);
+            static GameSerialization FromGame(const std::shared_ptr<game::Game> game);
 
-            void ToGame(Game& game);
+            void ToGame(std::shared_ptr<Game> game);
 
             template <typename Archive>
             void serialize(Archive& ar, [[maybe_unused]] const unsigned version) {

@@ -182,7 +182,7 @@ application::Application InitializeApplication(Args& args) {
 int main(int argc, const char* argv[]) {
     try {
         auto args = ParseCommandLine(argc, argv);
-        setlocale(LC_ALL, "Ru");
+
         if (!args) {
             return EXIT_FAILURE;
         }

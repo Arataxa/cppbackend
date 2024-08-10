@@ -18,7 +18,7 @@ namespace application {
 
 	class Application {
 	public:
-		explicit Application(game::Game&& game, DatabaseManager&& db_manager, loot_type_info::LootTypeInfo&& type_info, const std::string& state_file, int save_state_period);
+		explicit Application(std::shared_ptr<game::Game> game, DatabaseManager&& db_manager, loot_type_info::LootTypeInfo&& type_info, const std::string& state_file, int save_state_period);
 
 		std::pair<PlayerToken, size_t> JoinGame(const Map* map, std::string& name);
 
@@ -40,7 +40,7 @@ namespace application {
 
 		void SaveLeavedPlayerScore(Player&& player);
 	private:
-		game::Game game_;
+		std::shared_ptr<game::Game> game_;
 		DatabaseManager db_manager_;
 		loot_type_info::LootTypeInfo loot_type_info_;
 		std::string state_file_;
