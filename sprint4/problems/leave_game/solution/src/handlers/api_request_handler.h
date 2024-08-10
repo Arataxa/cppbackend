@@ -548,6 +548,8 @@ namespace http_handler {
                 case 'L':
                     player->SetDirection(Direction::WEST);
                     break;
+                default:
+                    player->SetDirection(Direction::NOTHING);
                 }
 
                 http::response<http::string_body> response;

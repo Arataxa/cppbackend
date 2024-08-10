@@ -16,7 +16,7 @@ namespace application {
             };
 
             enum Direction {
-                NORTH, SOUTH, WEST, EAST
+                NORTH, SOUTH, WEST, EAST, NOTHING
             };
 
             struct Speed {
