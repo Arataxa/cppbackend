@@ -196,13 +196,7 @@ namespace application {
                 auto speed = dog_.GetSpeed();
                 play_time_in_second_ += time;
 
-                if (speed.x == 0 && speed.y == 0) {
-                    inactive_time_ += time;
-                    return dog_.GetPosition();
-                }
-                else {
-                    inactive_time_ = 0.0;
-                }
+                Coordinates old_coordinates = dog_.GetPosition();
 
                 Coordinates new_coordinates;
                 Direction direction = dog_.GetDirection();
@@ -218,7 +212,14 @@ namespace application {
                     break;
                 }
 
-                dog_.SetPosition(new_coordinates);
+                if (new_coordinates == old_coordinates) {
+                    inactive_time_ += time;
+                    return old_coordinates;
+                }
+                else {
+                    inactive_time_ = 0.0;
+                    dog_.SetPosition(new_coordinates);
+                }
 
                 return new_coordinates;
             }
