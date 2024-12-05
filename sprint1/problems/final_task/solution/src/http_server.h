@@ -27,7 +27,7 @@ namespace http_server {
         SessionBase(const SessionBase&) = delete;
         SessionBase& operator=(const SessionBase&) = delete;
 
-        ~SessionBase() = default;
+        virtual ~SessionBase() = default;
 
         void Run();
 
